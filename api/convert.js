@@ -387,10 +387,20 @@ export default async function handler(req, res) {
 
   let browser;
   try {
-    // Resolve input source → final HTML
+    // Resolve input source → final HTML (or defer to page.goto for URLs)
+    let navigateToUrl = null;
     if (inputType === 'url' || (url && !html && !markdown && !htmls)) {
       if (!url) return res.status(400).json({ error: 'URL fehlt.' });
-      html = await fetchUrl(url);
+      try {
+        const u = new URL(url);
+        if (!['http:', 'https:'].includes(u.protocol)) {
+          return res.status(400).json({ error: 'Nur http(s) URLs erlaubt.' });
+        }
+        navigateToUrl = url;
+      } catch {
+        return res.status(400).json({ error: 'URL ungültig.' });
+      }
+      html = '<!-- placeholder -->';  // pass length check; actual content comes from goto
     } else if (inputType === 'markdown' || (markdown && !html && !htmls)) {
       if (!markdown || markdown.trim().length < 3) {
         return res.status(400).json({ error: 'Markdown fehlt.' });
@@ -403,11 +413,13 @@ export default async function handler(req, res) {
       html = combineHtmls(htmls);
     }
 
-    if (!html || typeof html !== 'string' || html.length < 20) {
-      return res.status(400).json({ error: 'Eingabe fehlt oder ist zu kurz.' });
-    }
-    if (html.length > 5_000_000) {
-      return res.status(413).json({ error: 'Eingabe zu groß (max. 5 MB).' });
+    if (!navigateToUrl) {
+      if (!html || typeof html !== 'string' || html.length < 20) {
+        return res.status(400).json({ error: 'Eingabe fehlt oder ist zu kurz.' });
+      }
+      if (html.length > 5_000_000) {
+        return res.status(413).json({ error: 'Eingabe zu groß (max. 5 MB).' });
+      }
     }
 
     const isLocal = !process.env.AWS_LAMBDA_FUNCTION_VERSION && !process.env.VERCEL;
@@ -448,7 +460,24 @@ export default async function handler(req, res) {
       hasHeader || hasFooter ? '18mm' : userWantsMargin ? marginStr : null;
 
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: ['load', 'networkidle0'], timeout: 30_000 });
+
+    // Identify as real Chrome so sites don't block "HeadlessChrome"
+    await page.setUserAgent(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+    );
+    // Force light color scheme so sites that auto-dark don't render a black page
+    await page.emulateMediaFeatures([
+      { name: 'prefers-color-scheme', value: 'light' },
+      { name: 'prefers-reduced-motion', value: 'reduce' },
+    ]);
+
+    if (navigateToUrl) {
+      await page.goto(navigateToUrl, { waitUntil: ['load', 'networkidle2'], timeout: 30_000 });
+      // Give lazy content a moment after navigation
+      await new Promise((r) => setTimeout(r, 600));
+    } else {
+      await page.setContent(html, { waitUntil: ['load', 'networkidle0'], timeout: 30_000 });
+    }
 
     await prepareForPdf(page, {
       expandAll,
