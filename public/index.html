@@ -191,6 +191,22 @@
         </div>
         <label class="toggle"><input type="checkbox" id="landscape" /> Querformat</label>
 
+        <h3 style="margin-top:22px;">Inhalt vorbereiten</h3>
+        <label class="toggle"><input type="checkbox" id="expandAll" checked /> Alle Toggles/Akkordeons aufklappen</label>
+        <label class="toggle"><input type="checkbox" id="forceVisible" checked /> Animationen &amp; Transparenz entfernen</label>
+        <label class="toggle"><input type="checkbox" id="highlightLinks" /> Links hervorheben (unterstreichen)</label>
+
+        <h3 style="margin-top:22px;">Kopf- &amp; Fußzeile</h3>
+        <div class="field">
+          <label for="header">Kopfzeile (links)</label>
+          <input type="text" id="header" placeholder="z. B. AI Guide · Workshop 2026" />
+        </div>
+        <div class="field">
+          <label for="footer">Fußzeile (links)</label>
+          <input type="text" id="footer" placeholder="z. B. © 2026 · vertraulich" />
+        </div>
+        <label class="toggle"><input type="checkbox" id="pageNumbers" /> Seitenzahlen (rechts in Fußzeile)</label>
+
         <div class="actions">
           <button class="primary" id="go">PDF erstellen</button>
           <button class="ghost" id="sample">Beispiel laden</button>
@@ -253,6 +269,12 @@
           margin: $('margin').value,
           landscape: $('landscape').checked,
           filename: $('filename').value || 'dokument.pdf',
+          expandAll: $('expandAll').checked,
+          forceVisible: $('forceVisible').checked,
+          highlightLinks: $('highlightLinks').checked,
+          header: $('header').value,
+          footer: $('footer').value,
+          pageNumbers: $('pageNumbers').checked,
         }),
       });
 
