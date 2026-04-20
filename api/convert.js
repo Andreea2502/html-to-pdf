@@ -75,11 +75,12 @@ export default async function handler(req, res) {
     });
 
     const safeName = String(filename).replace(/[^\w.\-]/g, '_').slice(0, 80) || 'document.pdf';
+    const pdfBuffer = Buffer.from(pdf);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
-    res.setHeader('Content-Length', pdf.length);
-    res.status(200).send(pdf);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.status(200).end(pdfBuffer);
   } catch (error) {
     console.error('PDF conversion failed:', error);
     res.status(500).json({ error: error.message ?? 'Unbekannter Fehler.' });
