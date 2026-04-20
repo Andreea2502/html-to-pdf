@@ -7,8 +7,8 @@
     "html2pdf": "./src/cli.js"
   },
   "scripts": {
-    "build": "node src/cli.js --input examples/whitepaper.html --output out/whitepaper.pdf",
-    "build:cert": "node src/cli.js --input examples/certificate.html --output out/certificate.pdf --landscape",
+    "cli:whitepaper": "node src/cli.js --input examples/whitepaper.html --output out/whitepaper.pdf",
+    "cli:certificate": "node src/cli.js --input examples/certificate.html --output out/certificate.pdf --landscape",
     "dev": "vercel dev",
     "deploy": "vercel --prod"
   },

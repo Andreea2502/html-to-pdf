@@ -61,8 +61,10 @@ npm run dev            # startet http://localhost:3000
 
 ```bash
 npm install
+npm run cli:whitepaper
+npm run cli:certificate
+# oder direkt:
 node src/cli.js -i examples/whitepaper.html -o out/whitepaper.pdf
-node src/cli.js -i examples/certificate.html -o out/certificate.pdf --landscape
 ```
 
 ## Wie die Umwandlung funktioniert
