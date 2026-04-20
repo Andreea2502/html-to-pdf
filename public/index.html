@@ -189,11 +189,14 @@
           </select>
         </div>
         <div class="field">
-          <label for="margin">Seitenrand (mm)</label>
+          <label for="margin">Seitenrand</label>
           <select id="margin">
-            <option value="0" selected>0 — volle Kontrolle über CSS</option>
-            <option value="10">10 mm</option>
-            <option value="20">20 mm</option>
+            <option value="auto" selected>Auto — passt sich dem HTML an</option>
+            <option value="0">Vollflächig (0 mm)</option>
+            <option value="10">Schmal (10 mm)</option>
+            <option value="12">Standard (12 mm)</option>
+            <option value="20">Großzügig (20 mm)</option>
+            <option value="25">Sehr großzügig (25 mm)</option>
           </select>
         </div>
         <label class="toggle"><input type="checkbox" id="landscape" /> Querformat</label>

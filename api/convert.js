@@ -47,6 +47,39 @@ async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, ov
         }
       }
 
+      // Smart page-break protection — prevents headings from being orphaned and
+      // common card/box/section containers from being split across pages.
+      injectStyle(`
+        @media print, screen {
+          h1, h2, h3, h4, h5, h6 {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          figure, picture, table, blockquote, pre, dl, details,
+          .card, [class~="card"], [class*="-card"],
+          .box:not(body), [class~="box"]:not(body),
+          .tile, [class~="tile"],
+          .panel, [class~="panel"],
+          .alert, .callout, .quote, .frame,
+          .station, .module, .feature, .item, .entry,
+          li, .list-item {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          p {
+            orphans: 3 !important;
+            widows: 3 !important;
+          }
+          img, svg, video {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            max-width: 100% !important;
+          }
+        }
+      `);
+
       if (forceVisible) {
         injectStyle(`
           *, *::before, *::after {
@@ -153,7 +186,7 @@ export default async function handler(req, res) {
     html,
     format = 'A4',
     landscape = false,
-    margin = '0',
+    margin = 'auto',
     filename = 'document.pdf',
     expandAll = true,
     forceVisible = true,
@@ -189,11 +222,28 @@ export default async function handler(req, res) {
       defaultViewport: { width: 1240, height: 1754, deviceScaleFactor: 2 },
     });
 
-    const marginStr = /\D/.test(String(margin)) ? String(margin) : `${margin}mm`;
-    const marginValue = parseFloat(String(margin)) || 0;
+    let marginStr, marginValue, userWantsMargin;
+    if (String(margin) === 'auto') {
+      // If the source HTML defines its own @page margin, respect it (full-bleed designs).
+      // Otherwise apply a sensible 12mm default for AI-generated/raw HTML.
+      const hasPageMarginRule = /@page[^{]*\{[^}]*margin\s*:/i.test(html);
+      if (hasPageMarginRule) {
+        marginStr = '0mm';
+        marginValue = 0;
+        userWantsMargin = false;
+      } else {
+        marginStr = '12mm';
+        marginValue = 12;
+        userWantsMargin = true;
+      }
+    } else {
+      marginStr = /\D/.test(String(margin)) ? String(margin) : `${margin}mm`;
+      marginValue = parseFloat(String(margin)) || 0;
+      userWantsMargin = marginValue > 0;
+    }
+
     const hasHeader = Boolean(header && header.trim());
     const hasFooter = Boolean((footer && footer.trim()) || pageNumbers);
-    const userWantsMargin = marginValue > 0;
     const userWantsCustomScale = safeScale !== 1;
     const useExplicitLayout = userWantsMargin || hasHeader || hasFooter || userWantsCustomScale;
     // Effective margin to enforce on the page. Header/footer need at least 18mm.
