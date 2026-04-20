@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HTML → PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:   #FAF8F3;
+    --ink:     #11162A;
+    --muted:   #5A6070;
+    --rule:    #E7E1D4;
+    --accent:  #E8552B;
+    --chip-bg: #F1ECDF;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 28px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600;
+           letter-spacing: 0.2em; text-transform: uppercase; font-size: 11px; }
+  .brand .dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+  header .meta { font-size: 11px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 48px 40px 80px; }
+
+  .hero { max-width: 760px; margin-bottom: 36px; }
+  .chapter-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--chip-bg); color: var(--ink);
+    padding: 5px 14px; border-radius: 999px;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+  }
+  h1 {
+    font-family: 'Fraunces', 'Times New Roman', serif; font-weight: 700;
+    font-size: clamp(40px, 6vw, 64px); line-height: 1.05; letter-spacing: -0.015em;
+    margin: 20px 0 14px;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .hero p { font-size: 17px; line-height: 1.55; color: #242A40; max-width: 620px; margin: 0; }
+
+  .workspace {
+    display: grid; grid-template-columns: 1.6fr 1fr; gap: 28px;
+    margin-top: 14px;
+  }
+  @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: #FFFDF7;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .panel h3 {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 14px;
+  }
+
+  textarea {
+    width: 100%; min-height: 460px;
+    background: #FCFAF4; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', Menlo, monospace;
+    font-size: 12.5px; line-height: 1.55;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--ink); }
+
+  .controls { display: grid; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .field select, .field input[type="text"] {
+    background: #FCFAF4; border: 1px solid var(--rule); border-radius: 6px;
+    padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink);
+    outline: none;
+  }
+  .field select:focus, .field input:focus { border-color: var(--ink); }
+
+  .toggle { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+  .actions { display: flex; gap: 10px; margin-top: 8px; }
+  button.primary {
+    flex: 1;
+    background: var(--ink); color: var(--paper);
+    border: none; border-radius: 6px;
+    padding: 14px 18px;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    cursor: pointer; transition: transform .15s ease, background .15s ease;
+  }
+  button.primary:hover:not(:disabled) { background: var(--accent); }
+  button.primary:disabled { opacity: 0.55; cursor: wait; }
+
+  button.ghost {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 6px;
+    padding: 14px 18px;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer;
+  }
+  button.ghost:hover { border-color: var(--ink); }
+
+  .status {
+    margin-top: 16px; padding: 12px 14px;
+    border-radius: 6px; font-size: 13px;
+    display: none;
+  }
+  .status.visible { display: block; }
+  .status.info  { background: #F1ECDF; color: #4A4633; }
+  .status.error { background: #FCEAE2; color: #7A2818; }
+  .status.success { background: #EDF3EB; color: #2A4A2B; }
+
+  .hint {
+    margin-top: 22px; padding: 16px 18px;
+    border-left: 3px solid var(--accent);
+    color: #242A40; font-size: 13px; line-height: 1.55;
+    background: #FCFAF4;
+  }
+  .hint b { font-weight: 600; }
+
+  footer {
+    margin-top: 60px; padding: 20px 40px;
+    border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between;
+    color: var(--muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="dot"></span><span>HTML&nbsp;→&nbsp;PDF</span></div>
+  <div class="meta">Edition · 2026</div>
+</header>
+
+<main>
+  <div class="hero">
+    <span class="chapter-tag">Konverter · für jedes HTML</span>
+    <h1>HTML rein. <em>Designtes PDF</em> raus.</h1>
+    <p>Füge beliebigen HTML-Code ein — Lebenslauf, Artikel, Whitepaper, Einladung. Schriftarten, Farben, Bilder und Layout werden 1:1 ins PDF übernommen.</p>
+  </div>
+
+  <div class="workspace">
+    <section class="panel">
+      <h3>HTML-Code</h3>
+      <textarea id="html" spellcheck="false" placeholder="<!doctype html>&#10;<html>&#10;  <head>...</head>&#10;  <body>&#10;    Dein Inhalt hier ...&#10;  </body>&#10;</html>"></textarea>
+    </section>
+
+    <aside class="panel">
+      <h3>Einstellungen</h3>
+      <div class="controls">
+        <div class="field">
+          <label for="filename">Dateiname</label>
+          <input type="text" id="filename" value="dokument.pdf" />
+        </div>
+        <div class="field">
+          <label for="format">Papierformat</label>
+          <select id="format">
+            <option value="A4" selected>A4</option>
+            <option value="A3">A3</option>
+            <option value="A5">A5</option>
+            <option value="Letter">Letter</option>
+            <option value="Legal">Legal</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="margin">Seitenrand (mm)</label>
+          <select id="margin">
+            <option value="0" selected>0 — volle Kontrolle über CSS</option>
+            <option value="10">10 mm</option>
+            <option value="20">20 mm</option>
+          </select>
+        </div>
+        <label class="toggle"><input type="checkbox" id="landscape" /> Querformat</label>
+
+        <div class="actions">
+          <button class="primary" id="go">PDF erstellen</button>
+          <button class="ghost" id="sample">Beispiel laden</button>
+        </div>
+
+        <div class="status" id="status"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="hint">
+    <b>Tipp:</b> Wenn du die Seitengröße im HTML selbst per
+    <code style="font-family:'JetBrains Mono',monospace;">@page { size: A4; margin: 0 }</code>
+    definierst, setz hier „Seitenrand“ auf 0 — das vermeidet doppelte Ränder.
+    Externe Bilder/Fonts müssen per URL erreichbar sein (Google Fonts, CDN), lokale Dateipfade funktionieren online nicht.
+  </div>
+</main>
+
+<footer>
+  <span>Open Source · MIT</span>
+  <span>Puppeteer · Vercel</span>
+</footer>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const statusEl = $('status');
+  const go = $('go');
+
+  function setStatus(msg, kind = 'info') {
+    statusEl.textContent = msg;
+    statusEl.className = `status visible ${kind}`;
+  }
+  function clearStatus() { statusEl.className = 'status'; }
+
+  $('sample').addEventListener('click', async () => {
+    try {
+      const r = await fetch('/sample.html');
+      if (!r.ok) throw new Error('Beispiel konnte nicht geladen werden.');
+      $('html').value = await r.text();
+      setStatus('Beispiel geladen — jetzt auf „PDF erstellen“ klicken.', 'info');
+    } catch (e) {
+      setStatus(e.message, 'error');
+    }
+  });
+
+  go.addEventListener('click', async () => {
+    const html = $('html').value.trim();
+    if (!html) { setStatus('Bitte HTML einfügen.', 'error'); return; }
+
+    go.disabled = true;
+    setStatus('Rendere PDF … (Kaltstart kann 5–10 s dauern)', 'info');
+
+    try {
+      const res = await fetch('/api/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html,
+          format: $('format').value,
+          margin: $('margin').value,
+          landscape: $('landscape').checked,
+          filename: $('filename').value || 'dokument.pdf',
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Fehler beim Rendern.' }));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = $('filename').value || 'dokument.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      setStatus('PDF erstellt und heruntergeladen.', 'success');
+    } catch (e) {
+      setStatus(`Fehler: ${e.message}`, 'error');
+    } finally {
+      go.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

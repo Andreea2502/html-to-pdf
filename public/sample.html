@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>Lebenslauf · Beispiel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:  #FAF8F3;
+    --ink:    #11162A;
+    --muted:  #5A6070;
+    --rule:   #E7E1D4;
+    --accent: #E8552B;
+  }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+               font-family:'Inter', sans-serif; font-size:10.5pt; line-height:1.55;
+               -webkit-font-smoothing:antialiased; }
+  h1, h2, h3 { font-family:'Fraunces', serif; font-weight:700; letter-spacing:-0.01em; margin:0; }
+
+  .page { width:210mm; min-height:297mm; padding:22mm 20mm; page-break-after:always; }
+  .page:last-child { page-break-after:auto; }
+
+  .header { display:grid; grid-template-columns: 1fr auto; align-items:end; gap:20mm;
+            padding-bottom:8mm; border-bottom:1px solid var(--rule); margin-bottom:10mm; }
+  .header h1 { font-size:48pt; line-height:1; }
+  .header h1 em { font-style:italic; color:var(--accent); }
+  .header .contact { text-align:right; font-size:10pt; color:var(--muted); }
+  .header .contact b { color:var(--ink); font-weight:600; }
+
+  .role { font-size:13pt; letter-spacing:0.04em; color:var(--accent);
+          text-transform:uppercase; font-weight:600; margin-bottom:3mm; }
+
+  .grid { display:grid; grid-template-columns: 55mm 1fr; gap:10mm; margin-top:6mm; }
+
+  h2 { font-size:11pt; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink);
+       font-family:'Inter', sans-serif; font-weight:600; margin-bottom:4mm;
+       padding-bottom:2mm; border-bottom:1px solid var(--rule); }
+
+  .entry { margin-bottom:6mm; break-inside:avoid; }
+  .entry .when { font-size:9.5pt; color:var(--muted); letter-spacing:0.05em; text-transform:uppercase; }
+  .entry .what { font-family:'Fraunces', serif; font-size:13pt; margin:1mm 0; }
+  .entry .where { font-size:10pt; color:var(--muted); margin-bottom:2mm; }
+  .entry ul { margin:2mm 0 0 0; padding-left:5mm; }
+  .entry li { margin-bottom:1.5mm; }
+
+  .skills { display:flex; flex-wrap:wrap; gap:2mm; }
+  .skill { background:#F1ECDF; padding:1.5mm 3mm; border-radius:3px; font-size:9.5pt; }
+
+  .lede { font-size:12pt; line-height:1.55; color:#242A40; max-width:155mm; }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="header">
+    <div>
+      <div class="role">Senior UX Designer</div>
+      <h1>Andreea<br><em>Negru.</em></h1>
+    </div>
+    <div class="contact">
+      <b>andreea@beispiel.at</b><br>
+      +43 660 123 45 67<br>
+      Wien, Österreich<br>
+      linkedin.com/in/andreeanegru
+    </div>
+  </div>
+
+  <p class="lede">Zehn Jahre Produktdesign an der Schnittstelle von Editorial, B2B-SaaS und Bildung. Ich arbeite am liebsten dort, wo ruhige Typografie auf komplexe Workflows trifft — und moderiere Design-Entscheidungen als gemeinsamen Lernprozess.</p>
+
+  <div class="grid">
+    <aside>
+      <h2>Skills</h2>
+      <div class="skills">
+        <span class="skill">Figma</span><span class="skill">Design Systems</span>
+        <span class="skill">Typografie</span><span class="skill">User Research</span>
+        <span class="skill">Prototyping</span><span class="skill">Workshop-Moderation</span>
+        <span class="skill">HTML/CSS</span><span class="skill">Accessibility</span>
+      </div>
+
+      <h2 style="margin-top:9mm;">Sprachen</h2>
+      <p style="margin:0;">Deutsch <span style="color:var(--muted)">· Muttersprache</span><br>
+         Englisch <span style="color:var(--muted)">· C2</span><br>
+         Rumänisch <span style="color:var(--muted)">· Muttersprache</span></p>
+
+      <h2 style="margin-top:9mm;">Ausbildung</h2>
+      <div class="entry">
+        <div class="when">2013 – 2016</div>
+        <div class="what">MA Kommunikationsdesign</div>
+        <div class="where">FH Joanneum, Graz</div>
+      </div>
+    </aside>
+
+    <div>
+      <h2>Erfahrung</h2>
+
+      <div class="entry">
+        <div class="when">2022 – heute</div>
+        <div class="what">Senior UX Designer</div>
+        <div class="where">Atlas Studio · Wien</div>
+        <ul>
+          <li>Leitung des Redesigns einer B2B-Analyseplattform (180k Nutzer).</li>
+          <li>Einführung eines Design-Systems auf Basis von Tokens, reduziert 40% Design-Debt.</li>
+          <li>Moderation monatlicher Design-Critiques mit Engineering und Product.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="when">2019 – 2022</div>
+        <div class="what">Product Designer</div>
+        <div class="where">Lumen GmbH · Berlin</div>
+        <ul>
+          <li>Konzeption und Launch einer Lern-App für Erwachsenenbildung (Apple Editor's Choice 2021).</li>
+          <li>User Research in vier Ländern, 60+ Interviews synthetisiert.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="when">2016 – 2019</div>
+        <div class="what">UI Designer</div>
+        <div class="where">Freiberuflich</div>
+        <ul>
+          <li>Designs für Verlage, Startups und NGOs — Schwerpunkt Editorial Web und Print.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>Zertifikat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:  #FBF7EE;
+    --ink:    #141827;
+    --muted:  #6B6F7E;
+    --accent: #B8863A;
+    --rule:   #1B2038;
+  }
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+               font-family:'Inter', sans-serif; -webkit-font-smoothing:antialiased; }
+
+  .sheet {
+    width: 297mm; height: 210mm;
+    padding: 18mm;
+    position: relative;
+  }
+
+  .frame {
+    border: 1px solid var(--rule);
+    box-shadow: inset 0 0 0 6px var(--paper), inset 0 0 0 7px var(--accent);
+    height: 100%; width: 100%;
+    padding: 18mm 22mm;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative;
+    background:
+      radial-gradient(60% 40% at 50% 0%, rgba(184,134,58,0.08), transparent 60%),
+      radial-gradient(50% 30% at 50% 100%, rgba(20,24,39,0.04), transparent 60%);
+  }
+
+  .corner { position: absolute; width: 40px; height: 40px; border: 1px solid var(--accent); }
+  .corner.tl { top: 10mm; left: 10mm; border-right: none; border-bottom: none; }
+  .corner.tr { top: 10mm; right: 10mm; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 10mm; left: 10mm; border-right: none; border-top: none; }
+  .corner.br { bottom: 10mm; right: 10mm; border-left: none; border-top: none; }
+
+  .head { display:flex; justify-content:space-between; align-items:center;
+          letter-spacing:0.3em; text-transform:uppercase; font-size:9pt; color:var(--muted); }
+  .head .seal { display:flex; align-items:center; gap:10px; }
+  .head .seal .mark { width:22px; height:22px; border-radius:50%; background:var(--rule); color:var(--paper);
+                      display:grid; place-items:center; font-family:'Fraunces', serif; font-size:11pt; }
+
+  .body { text-align:center; }
+  .body .kicker { font-size:10pt; letter-spacing:0.4em; text-transform:uppercase; color:var(--accent); }
+  .body h1 { font-family:'Fraunces', serif; font-weight:700; font-size:64pt; line-height:1.05;
+             margin:6mm 0 2mm; letter-spacing:-0.01em; }
+  .body h1 em { font-style:italic; color:var(--accent); }
+  .body .awarded-to { font-size:10pt; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); margin-top:6mm; }
+  .body .recipient { font-family:'Fraunces', serif; font-style:italic; font-size:44pt; margin:4mm 0 2mm; }
+  .body .rule { width:90mm; height:1px; background:var(--rule); margin:2mm auto 6mm; opacity:0.5; }
+  .body .desc { max-width: 180mm; margin: 0 auto; color:#2A2E42; font-size:12pt; line-height:1.55; }
+
+  .signatures { display:grid; grid-template-columns: 1fr auto 1fr; gap:20mm; align-items:end; }
+  .sig { text-align:center; }
+  .sig .line { border-top:1px solid var(--rule); padding-top:3mm; font-size:10pt; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+  .sig .name { font-family:'Fraunces', serif; font-size:16pt; margin-bottom:2mm; }
+  .badge { width: 70px; height:70px; border-radius:50%; border:1px solid var(--accent);
+           display:grid; place-items:center; font-family:'Fraunces', serif; color:var(--accent);
+           position:relative; }
+  .badge::before, .badge::after { content:""; position:absolute; inset:4px; border-radius:50%; border:1px dashed rgba(184,134,58,0.4); }
+  .badge::after { inset:10px; border-style:solid; border-color:rgba(184,134,58,0.25); }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="corner tl"></div><div class="corner tr"></div>
+  <div class="corner bl"></div><div class="corner br"></div>
+
+  <div class="frame">
+    <div class="head">
+      <div class="seal"><span class="mark">A</span><span>Atlas Studio</span></div>
+      <div>No. 2026 · 04 · 117</div>
+    </div>
+
+    <div class="body">
+      <div class="kicker">Certificate of Completion</div>
+      <h1>Design&nbsp;<em>Fellowship.</em></h1>
+
+      <div class="awarded-to">Hiermit wird verliehen an</div>
+      <div class="recipient">Andreea Negru</div>
+      <div class="rule"></div>
+      <p class="desc">für die erfolgreiche Teilnahme am zwölfwöchigen Fellowship-Programm „Quiet Interfaces — Typografie, Weißraum und Motion im ruhigen Produktdesign“.</p>
+    </div>
+
+    <div class="signatures">
+      <div class="sig">
+        <div class="name">M. Lindqvist</div>
+        <div class="line">Program Director</div>
+      </div>
+      <div class="badge">A<br>2026</div>
+      <div class="sig">
+        <div class="name">Atlas Studio</div>
+        <div class="line">20. April 2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
