@@ -96,6 +96,13 @@
   .toggle { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
   .toggle input { width: 16px; height: 16px; accent-color: var(--accent); }
 
+  .range-row { display: flex; align-items: center; gap: 12px; }
+  .range-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .range-row .val {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    min-width: 52px; text-align: right; color: var(--ink); font-weight: 500;
+  }
+
   .actions { display: flex; gap: 10px; margin-top: 8px; }
   button.primary {
     flex: 1;
@@ -191,6 +198,13 @@
         </div>
         <label class="toggle"><input type="checkbox" id="landscape" /> Querformat</label>
 
+        <div class="field">
+          <label for="scale">Zoom · <span id="scaleVal" style="color:var(--ink);font-weight:500;">100%</span></label>
+          <div class="range-row">
+            <input type="range" id="scale" min="50" max="150" step="5" value="100" />
+          </div>
+        </div>
+
         <h3 style="margin-top:22px;">Inhalt vorbereiten</h3>
         <label class="toggle"><input type="checkbox" id="expandAll" checked /> Alle Toggles/Akkordeons aufklappen</label>
         <label class="toggle"><input type="checkbox" id="forceVisible" checked /> Animationen &amp; Transparenz entfernen</label>
@@ -241,6 +255,10 @@
   }
   function clearStatus() { statusEl.className = 'status'; }
 
+  const scaleEl = $('scale');
+  const scaleVal = $('scaleVal');
+  scaleEl.addEventListener('input', () => { scaleVal.textContent = scaleEl.value + '%'; });
+
   $('sample').addEventListener('click', async () => {
     try {
       const r = await fetch('/sample.html');
@@ -275,6 +293,7 @@
           header: $('header').value,
           footer: $('footer').value,
           pageNumbers: $('pageNumbers').checked,
+          scale: Number(scaleEl.value) / 100,
         }),
       });
 

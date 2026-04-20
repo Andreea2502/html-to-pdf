@@ -143,7 +143,10 @@ export default async function handler(req, res) {
     header = '',
     footer = '',
     pageNumbers = false,
+    scale = 1,
   } = req.body ?? {};
+
+  const safeScale = Math.min(2, Math.max(0.5, Number(scale) || 1));
 
   if (!html || typeof html !== 'string' || html.length < 20) {
     return res.status(400).json({ error: 'HTML fehlt oder ist zu kurz.' });
@@ -205,6 +208,7 @@ export default async function handler(req, res) {
       format,
       landscape: Boolean(landscape),
       printBackground: true,
+      scale: safeScale,
       preferCSSPageSize: !hasHeader && !hasFooter,
       displayHeaderFooter: hasHeader || hasFooter,
       headerTemplate,
