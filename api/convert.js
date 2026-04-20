@@ -19,15 +19,33 @@ async function getExecutablePath() {
   return cachedExecutablePath;
 }
 
-async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks }) {
+async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, overridePageMargin }) {
   await page.evaluate(
-    ({ expandAll, forceVisible, highlightLinks }) => {
+    ({ expandAll, forceVisible, highlightLinks, overridePageMargin }) => {
       const injectStyle = (css) => {
         const s = document.createElement('style');
         s.setAttribute('data-pdf-prep', '');
         s.textContent = css;
         document.head.appendChild(s);
       };
+
+      // Override @page rules from the source HTML so our margin/scale settings win
+      if (overridePageMargin) {
+        injectStyle(`@page { margin: ${overridePageMargin} !important; }`);
+        // Strip explicit @page margin rules from existing stylesheets too
+        for (const sheet of Array.from(document.styleSheets)) {
+          try {
+            const rules = sheet.cssRules;
+            if (!rules) continue;
+            for (let i = rules.length - 1; i >= 0; i--) {
+              const rule = rules[i];
+              if (rule.type === 6 /* CSSRule.PAGE_RULE */) {
+                sheet.deleteRule(i);
+              }
+            }
+          } catch (e) { /* CORS or other access issues */ }
+        }
+      }
 
       if (forceVisible) {
         injectStyle(`
@@ -118,7 +136,7 @@ async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks }) 
       window.scrollTo(0, document.body.scrollHeight);
       window.scrollTo(0, 0);
     },
-    { expandAll, forceVisible, highlightLinks }
+    { expandAll, forceVisible, highlightLinks, overridePageMargin }
   );
 
   // Give lazy-loaded content a beat
@@ -171,20 +189,26 @@ export default async function handler(req, res) {
       defaultViewport: { width: 1240, height: 1754, deviceScaleFactor: 2 },
     });
 
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: ['load', 'networkidle0'], timeout: 30_000 });
-
-    await prepareForPdf(page, { expandAll, forceVisible, highlightLinks });
-
     const marginStr = /\D/.test(String(margin)) ? String(margin) : `${margin}mm`;
     const marginValue = parseFloat(String(margin)) || 0;
     const hasHeader = Boolean(header && header.trim());
     const hasFooter = Boolean((footer && footer.trim()) || pageNumbers);
     const userWantsMargin = marginValue > 0;
     const userWantsCustomScale = safeScale !== 1;
-    // Only let the source HTML's @page rules win if user hasn't customized anything.
-    // Otherwise our format/margin/scale settings must override CSS @page.
     const useExplicitLayout = userWantsMargin || hasHeader || hasFooter || userWantsCustomScale;
+    // Effective margin to enforce on the page. Header/footer need at least 18mm.
+    const effectiveMargin =
+      hasHeader || hasFooter ? '18mm' : userWantsMargin ? marginStr : null;
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: ['load', 'networkidle0'], timeout: 30_000 });
+
+    await prepareForPdf(page, {
+      expandAll,
+      forceVisible,
+      highlightLinks,
+      overridePageMargin: effectiveMargin,
+    });
 
     const wrap = (content) =>
       `<div style="width:100%;font-family:Inter,system-ui,sans-serif;font-size:9px;color:#5A6070;padding:0 12mm;display:flex;justify-content:space-between;align-items:center;">${content}</div>`;
