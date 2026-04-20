@@ -217,9 +217,12 @@ async function prepareForPdf(page, opts) {
             el.getAttribute('data-target') ||
             el.getAttribute('data-bs-target') ||
             el.getAttribute('href');
-          if (!targetSel) return;
+          if (!targetSel || targetSel === '#' || targetSel.length < 2) return;
           const sel = targetSel.startsWith('#') ? targetSel : '#' + targetSel;
-          const t = document.querySelector(sel);
+          // Selector must be a valid CSS identifier after #
+          if (!/^#[\w-]+$/.test(sel)) return;
+          let t;
+          try { t = document.querySelector(sel); } catch { return; }
           if (t) {
             t.classList.add('show', 'expanded', 'open', 'active', 'in');
             t.classList.remove('collapse', 'collapsed', 'hidden', 'is-collapsed');
