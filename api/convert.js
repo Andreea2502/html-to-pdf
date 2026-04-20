@@ -177,8 +177,14 @@ export default async function handler(req, res) {
     await prepareForPdf(page, { expandAll, forceVisible, highlightLinks });
 
     const marginStr = /\D/.test(String(margin)) ? String(margin) : `${margin}mm`;
+    const marginValue = parseFloat(String(margin)) || 0;
     const hasHeader = Boolean(header && header.trim());
     const hasFooter = Boolean((footer && footer.trim()) || pageNumbers);
+    const userWantsMargin = marginValue > 0;
+    const userWantsCustomScale = safeScale !== 1;
+    // Only let the source HTML's @page rules win if user hasn't customized anything.
+    // Otherwise our format/margin/scale settings must override CSS @page.
+    const useExplicitLayout = userWantsMargin || hasHeader || hasFooter || userWantsCustomScale;
 
     const wrap = (content) =>
       `<div style="width:100%;font-family:Inter,system-ui,sans-serif;font-size:9px;color:#5A6070;padding:0 12mm;display:flex;justify-content:space-between;align-items:center;">${content}</div>`;
@@ -209,7 +215,7 @@ export default async function handler(req, res) {
       landscape: Boolean(landscape),
       printBackground: true,
       scale: safeScale,
-      preferCSSPageSize: !hasHeader && !hasFooter,
+      preferCSSPageSize: !useExplicitLayout,
       displayHeaderFooter: hasHeader || hasFooter,
       headerTemplate,
       footerTemplate,

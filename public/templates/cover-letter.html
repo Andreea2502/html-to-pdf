@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>Anschreiben</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#FAF8F3; --ink:#11162A; --muted:#5A6070; --rule:#E7E1D4; --accent:#E8552B; }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+               font-family:'Inter', sans-serif; font-size:11pt; line-height:1.65;
+               -webkit-font-smoothing:antialiased; }
+  .page { width:210mm; min-height:297mm; padding:30mm 28mm; position:relative; }
+
+  .header { display:flex; justify-content:space-between; align-items:baseline;
+            border-bottom:1px solid var(--rule); padding-bottom:10mm; margin-bottom:14mm; }
+  .name { font-family:'Fraunces', serif; font-size:32pt; line-height:1; font-weight:700; }
+  .name em { font-style:italic; color:var(--accent); }
+  .meta { text-align:right; font-size:9.5pt; color:var(--muted); line-height:1.5; }
+  .meta b { color:var(--ink); font-weight:600; display:block; }
+
+  .recipient { margin-bottom:14mm; font-size:10.5pt; color:var(--muted); }
+  .recipient b { color:var(--ink); font-weight:600; display:block; margin-bottom:1mm; }
+
+  .date { text-align:right; color:var(--muted); font-size:10pt; margin-bottom:6mm; }
+
+  .subject { font-family:'Fraunces', serif; font-size:18pt; line-height:1.2;
+             margin-bottom:10mm; max-width:130mm; }
+  .subject em { font-style:italic; color:var(--accent); }
+
+  .body p { margin:0 0 4mm; }
+  .body .greeting { margin-bottom:6mm; }
+
+  .signature { margin-top:14mm; }
+  .signature .sig-name { font-family:'Fraunces', serif; font-size:16pt; font-style:italic; color:var(--ink); }
+  .signature .sig-line { width:50mm; border-top:1px solid var(--rule); margin-top:2mm; padding-top:2mm;
+                        color:var(--muted); font-size:9pt; letter-spacing:0.1em; text-transform:uppercase; }
+
+  .footer { position:absolute; bottom:18mm; left:28mm; right:28mm;
+            border-top:1px solid var(--rule); padding-top:4mm;
+            display:flex; justify-content:space-between; font-size:9pt; color:var(--muted);
+            letter-spacing:0.1em; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<section class="page">
+  <header class="header">
+    <div class="name">Andreea<br><em>Negru.</em></div>
+    <div class="meta">
+      <b>andreea@beispiel.at</b>
+      +43 660 123 45 67<br>
+      Praterstraße 14, 1020 Wien<br>
+      linkedin.com/in/andreeanegru
+    </div>
+  </header>
+
+  <div class="recipient">
+    <b>Atlas Studio GmbH</b>
+    z. Hd. Hrn. M. Lindqvist<br>
+    Mariahilfer Straße 88<br>
+    1070 Wien
+  </div>
+
+  <div class="date">Wien, 20. April 2026</div>
+
+  <h1 class="subject">Bewerbung als <em>Senior Product Designer</em> — Referenz #PD-2026-04</h1>
+
+  <div class="body">
+    <p class="greeting">Sehr geehrter Herr Lindqvist,</p>
+
+    <p>Ihre Stellenausschreibung habe ich mit großem Interesse gelesen — vor allem die Passage zum Redesign Ihrer Analyseplattform. Nach acht Jahren an der Schnittstelle von Produkt und Design weiß ich, wie selten Teams formulieren, dass sie „typografische Klarheit über visuelles Spektakel" stellen wollen. Genau dort möchte ich anschließen.</p>
+
+    <p>In meiner aktuellen Rolle bei Lumen GmbH habe ich ein Design-System auf Token-Basis aufgebaut, das die Time-to-Ship neuer Features um 35 % reduziert hat — und gleichzeitig die visuelle Konsistenz über sechs Produktteams hinweg ermöglicht. Ich glaube, dass Design dann am stärksten wirkt, wenn es im Hintergrund funktioniert und Komplexität abräumt, statt zu unterhalten.</p>
+
+    <p>Was mich an Atlas besonders reizt, ist die Kombination aus B2B-Tiefe und gestalterischer Sorgfalt. Ich würde gerne mit Ihnen darüber sprechen, wie ich diese Erfahrung in Ihre nächste Produktphase einbringen kann — über einen ersten Termin würde ich mich freuen.</p>
+
+    <p>Mit freundlichen Grüßen</p>
+  </div>
+
+  <div class="signature">
+    <div class="sig-name">A. Negru</div>
+    <div class="sig-line">Andreea Negru</div>
+  </div>
+
+  <div class="footer">
+    <span>Anlagen: Lebenslauf · Portfolio</span>
+    <span>Seite 1 / 1</span>
+  </div>
+</section>
+</body>
+</html>

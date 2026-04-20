@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>Whitepaper · Designed PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.454.0/font/lucide.css">
+<style>
+  :root {
+    --bg:        #0B0F19;
+    --paper:     #FAF8F3;
+    --ink:       #11162A;
+    --muted:     #5A6070;
+    --accent:    #E8552B;
+    --accent-2:  #F4C95D;
+    --rule:      #E7E1D4;
+    --chip-bg:   #F1ECDF;
+  }
+
+  @page { size: A4; margin: 0; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink);
+               font-family: 'Inter', system-ui, sans-serif; font-size: 11pt; line-height: 1.55;
+               -webkit-font-smoothing: antialiased; }
+
+  h1, h2, h3 { font-family: 'Fraunces', 'Times New Roman', serif; font-weight: 700; letter-spacing: -0.01em; }
+
+  .page {
+    width: 210mm; height: 297mm;
+    padding: 22mm 20mm;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ────── COVER ─────────────────────────────────────── */
+  .cover { background: var(--bg); color: #F6F2E7; padding: 0; }
+  .cover .inner { padding: 26mm 20mm; height: 100%; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 2; }
+  .cover::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 45% at 85% 15%, rgba(232,85,43,0.35), transparent 60%),
+      radial-gradient(50% 40% at 10% 90%, rgba(244,201,93,0.25), transparent 60%);
+  }
+  .cover::after {
+    content: ""; position: absolute; right: -120px; top: 40%; width: 520px; height: 520px;
+    border: 1px solid rgba(246,242,231,0.12); border-radius: 50%;
+    box-shadow: 0 0 0 40px rgba(246,242,231,0.04), 0 0 0 90px rgba(246,242,231,0.02);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; font-size: 10pt; }
+  .brand .dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+  .cover h1 { font-size: 64pt; line-height: 1.02; margin: 0; color: #FFF8EB; }
+  .cover h1 em { font-style: italic; color: var(--accent-2); }
+  .cover .lede { max-width: 110mm; color: #D7D3C5; font-size: 13pt; line-height: 1.5; }
+  .cover .meta { display: flex; gap: 28px; font-size: 10pt; color: #BDBAAE; }
+  .cover .meta div b { color: #F6F2E7; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 9pt; display: block; margin-bottom: 4px; }
+
+  /* ────── GENERIC CONTENT ───────────────────────────── */
+  .running-head { display: flex; justify-content: space-between; align-items: center;
+                  color: var(--muted); font-size: 9pt; letter-spacing: 0.14em; text-transform: uppercase;
+                  border-bottom: 1px solid var(--rule); padding-bottom: 6mm; margin-bottom: 10mm; }
+
+  .chapter-tag { display: inline-flex; align-items: center; gap: 8px;
+                 background: var(--chip-bg); color: var(--ink);
+                 padding: 4px 12px; border-radius: 999px;
+                 font-size: 9pt; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+
+  h2.section { font-size: 34pt; line-height: 1.05; margin: 6mm 0 8mm; max-width: 150mm; }
+  h3 { font-size: 14pt; margin: 8mm 0 3mm; }
+
+  .lead { font-size: 13pt; line-height: 1.5; color: #242A40; max-width: 150mm; }
+  .lead::first-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 56pt; float: left; line-height: 0.9;
+    padding: 6px 10px 0 0; color: var(--accent);
+  }
+
+  .cols-2 { column-count: 2; column-gap: 10mm; margin-top: 8mm; }
+  .cols-2 p { break-inside: avoid; margin: 0 0 3.5mm; }
+
+  .pullquote { border-left: 3px solid var(--accent); padding: 4mm 6mm;
+               font-family: 'Fraunces', serif; font-size: 18pt; line-height: 1.3;
+               color: #1A2036; margin: 8mm 0; break-inside: avoid; }
+
+  .grid-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6mm; margin-top: 6mm; }
+  .card { border: 1px solid var(--rule); background: #FFFDF7; border-radius: 6px;
+          padding: 7mm; break-inside: avoid; }
+  .card .icon { width: 36px; height: 36px; border-radius: 8px; background: var(--ink); color: var(--paper);
+                display: grid; place-items: center; font-size: 18px; margin-bottom: 4mm; }
+  .card h4 { margin: 0 0 2mm; font-size: 12pt; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .card p { margin: 0; color: var(--muted); font-size: 10pt; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm; margin: 8mm 0; }
+  .stat { border-top: 2px solid var(--ink); padding-top: 4mm; }
+  .stat .num { font-family: 'Fraunces', serif; font-size: 34pt; line-height: 1; color: var(--accent); }
+  .stat .label { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 2mm; }
+
+  /* ────── TOC ───────────────────────────────────────── */
+  .toc-list { list-style: none; padding: 0; margin: 10mm 0 0; }
+  .toc-list li { display: flex; align-items: baseline; gap: 6mm; padding: 4mm 0; border-bottom: 1px dashed var(--rule); }
+  .toc-list .num { font-family: 'Fraunces', serif; font-size: 20pt; color: var(--accent); width: 40mm; }
+  .toc-list .title { flex: 1; font-weight: 500; font-size: 12pt; }
+  .toc-list .page-num { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* ────── PAGE NUMBER (CSS) ─────────────────────────── */
+  .page-footer { position: absolute; bottom: 12mm; left: 20mm; right: 20mm;
+                 display: flex; justify-content: space-between;
+                 color: var(--muted); font-size: 9pt; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .no-break { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ───────── PAGE 1 · COVER ───────── -->
+<section class="page cover">
+  <div class="inner">
+    <div class="brand"><span class="dot"></span><span>Atlas&nbsp;Studio · Research</span></div>
+    <div>
+      <div class="chapter-tag" style="background:rgba(246,242,231,0.1); color:#F6F2E7;">Whitepaper · Vol. 04</div>
+      <h1 style="margin-top:10mm;">Quiet<br><em>Interfaces.</em></h1>
+      <p class="lede">Wie ruhiges Design, bewusste Typografie und langsame Animation die Aufmerksamkeit zurück&shy;gewinnen — und warum das in 2026 zum Wettbewerbs&shy;vorteil wird.</p>
+    </div>
+    <div class="meta">
+      <div><b>Ausgabe</b>April 2026</div>
+      <div><b>Autor</b>A. Negru · M. Lindqvist</div>
+      <div><b>Seiten</b>03</div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── PAGE 2 · INHALT + EINSTIEG ───────── -->
+<section class="page">
+  <div class="running-head">
+    <span>Atlas Studio · Research</span>
+    <span>Quiet Interfaces</span>
+  </div>
+
+  <span class="chapter-tag"><i class="icon-book-open"></i>Kapitel 01</span>
+  <h2 class="section">Das Ende des Neon-Zeitalters.</h2>
+
+  <p class="lead">Ein Jahrzehnt lang haben Produkte miteinander um Aufmerksamkeit gerungen — mit Gradients, Mikro-Interaktionen, Pop-Ups und Push-Kaskaden. Der Effekt war kurzfristig messbar und langfristig toxisch. Das Pendel schlägt zurück.</p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num">-38%</div><div class="label">Notification Opt-In (seit 2022)</div></div>
+    <div class="stat"><div class="num">2.4×</div><div class="label">Verweildauer in „Calm UIs“</div></div>
+    <div class="stat"><div class="num">71%</div><div class="label">Nutzer wünschen weniger Reize</div></div>
+  </div>
+
+  <div class="cols-2">
+    <p>Die erste Welle responsiver Designs optimierte für Conversion. Die zweite Welle für Engagement. Die dritte, die gerade beginnt, optimiert für etwas überraschend Altes: <b>Vertrauen</b>.</p>
+    <p>Unsere Analyse von 142 B2B-Produkten zeigt eine klare Verschiebung in Richtung reduzierter Paletten, serifenbetonter Hierarchien und langsamer, respektvoller Motion.</p>
+    <p>Die „laute“ Schule der 2010er — gesättigte Farben, Sticky CTAs, gamifizierte Onboarding-Flows — verliert bei Nutzern über 30 rapide an Akzeptanz.</p>
+    <p>Gleichzeitig wächst ein neues Vokabular: <i>editorial</i>, <i>tactile</i>, <i>quiet</i>, <i>slow</i>. Begriffe, die vor fünf Jahren in einem Software-Kontext absurd geklungen hätten.</p>
+  </div>
+
+  <blockquote class="pullquote">„Ein Interface, das flüstert, wird öfter gehört als eines, das schreit.“</blockquote>
+
+  <div class="grid-cards">
+    <div class="card">
+      <div class="icon"><i class="icon-feather"></i></div>
+      <h4>Typografie statt Chrome</h4>
+      <p>Die Hierarchie entsteht durch Schriftgröße und Weißraum — nicht durch Karten, Schatten und Rahmen.</p>
+    </div>
+    <div class="card">
+      <div class="icon"><i class="icon-palette"></i></div>
+      <h4>Reduzierte Paletten</h4>
+      <p>Zwei bis drei Farben, papierartige Hintergründe, ein einziger Akzent für Aktion und Fehler.</p>
+    </div>
+    <div class="card">
+      <div class="icon"><i class="icon-timer"></i></div>
+      <h4>Langsame Motion</h4>
+      <p>300–450 ms Easings statt 120 ms Snap. Bewegung bestätigt, statt zu unterhalten.</p>
+    </div>
+    <div class="card">
+      <div class="icon"><i class="icon-shield"></i></div>
+      <h4>Respektvolle Defaults</h4>
+      <p>Opt-out statt Opt-in für alles Laute. Benachrichtigungen sind ein Privileg, kein Standard.</p>
+    </div>
+  </div>
+
+  <div class="page-footer"><span>02</span><span>— Atlas Studio</span></div>
+</section>
+
+<!-- ───────── PAGE 3 · INHALTSVERZEICHNIS ───────── -->
+<section class="page">
+  <div class="running-head">
+    <span>Inhalt</span>
+    <span>Quiet Interfaces</span>
+  </div>
+
+  <span class="chapter-tag"><i class="icon-list"></i>Inhaltsverzeichnis</span>
+  <h2 class="section">Was dich<br>erwartet.</h2>
+
+  <ol class="toc-list">
+    <li><span class="num">01</span><span class="title">Das Ende des Neon-Zeitalters</span><span class="page-num">S. 02</span></li>
+    <li><span class="num">02</span><span class="title">Typografische Systeme als Fundament</span><span class="page-num">S. 08</span></li>
+    <li><span class="num">03</span><span class="title">Weißraum ist kein Luxus</span><span class="page-num">S. 14</span></li>
+    <li><span class="num">04</span><span class="title">Motion Design mit Anstand</span><span class="page-num">S. 22</span></li>
+    <li><span class="num">05</span><span class="title">Fallstudien — Linear, Arc, Things</span><span class="page-num">S. 28</span></li>
+    <li><span class="num">06</span><span class="title">Playbook für dein Team</span><span class="page-num">S. 36</span></li>
+  </ol>
+
+  <div class="page-footer"><span>03</span><span>— Atlas Studio</span></div>
+</section>
+
+</body>
+</html>

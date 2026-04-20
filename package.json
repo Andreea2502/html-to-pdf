@@ -13,9 +13,11 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
+    "@cantoo/pdf-lib": "^2.6.5",
     "@sparticuz/chromium-min": "^147.0.1",
     "commander": "^12.1.0",
     "handlebars": "^4.7.8",
+    "marked": "^15.0.12",
     "puppeteer": "^23.0.0",
     "puppeteer-core": "^23.0.0"
   },
