@@ -1,27 +1,136 @@
 import chromium from '@sparticuz/chromium-min';
 import puppeteer from 'puppeteer-core';
+import { marked } from 'marked';
+import { PDFDocument } from '@cantoo/pdf-lib';
 
 const CHROMIUM_PACK =
   'https://github.com/Sparticuz/chromium/releases/download/v147.0.1/chromium-v147.0.1-pack.x64.tar';
 
 export const config = {
-  api: {
-    bodyParser: { sizeLimit: '10mb' },
-  },
+  api: { bodyParser: { sizeLimit: '10mb' } },
   maxDuration: 60,
 };
 
 let cachedExecutablePath;
-
 async function getExecutablePath() {
   if (cachedExecutablePath) return cachedExecutablePath;
   cachedExecutablePath = await chromium.executablePath(CHROMIUM_PACK);
   return cachedExecutablePath;
 }
 
-async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, overridePageMargin }) {
+// ───────────────────────── INPUT PROCESSING ─────────────────────────
+
+async function fetchUrl(url) {
+  const u = new URL(url);
+  if (!['http:', 'https:'].includes(u.protocol)) {
+    throw new Error('Nur http(s) URLs erlaubt.');
+  }
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      Accept: 'text/html,application/xhtml+xml',
+    },
+    redirect: 'follow',
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!res.ok) throw new Error(`URL ${url} antwortete mit ${res.status}.`);
+  const ct = res.headers.get('content-type') || '';
+  if (!ct.includes('html') && !ct.includes('xml')) {
+    throw new Error(`URL liefert kein HTML (Content-Type: ${ct}).`);
+  }
+  let html = await res.text();
+  const base = `${u.origin}${u.pathname.replace(/\/[^/]*$/, '/')}`;
+  if (!/<base\s/i.test(html)) {
+    html = html.replace(
+      /<head[^>]*>/i,
+      (m) => `${m}<base href="${escapeHtml(base)}">`
+    );
+  }
+  return html;
+}
+
+function markdownToHtml(md) {
+  marked.setOptions({ gfm: true, breaks: false, pedantic: false });
+  const body = marked.parse(md);
+  return `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#FAF8F3; --ink:#11162A; --muted:#5A6070; --rule:#E7E1D4; --accent:#E8552B; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink); }
+  body { font-family:'Inter',sans-serif; font-size:11pt; line-height:1.65; padding:20mm 22mm; max-width:none; -webkit-font-smoothing:antialiased; }
+  h1, h2, h3, h4 { font-family:'Fraunces',serif; line-height:1.2; font-weight:700; letter-spacing:-0.01em; }
+  h1 { font-size:32pt; margin:0 0 8mm; }
+  h1 + p { font-size:13pt; color:#242A40; }
+  h2 { font-size:20pt; margin:10mm 0 4mm; padding-bottom:2mm; border-bottom:1px solid var(--rule); }
+  h3 { font-size:14pt; margin:6mm 0 2mm; }
+  h4 { font-size:11pt; margin:4mm 0 1mm; font-family:'Inter',sans-serif; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); }
+  p { margin:0 0 4mm; }
+  a { color:var(--accent); text-decoration-color:rgba(232,85,43,0.4); }
+  strong { font-weight:600; }
+  em { font-style:italic; }
+  code { font-family:'JetBrains Mono',monospace; background:#F1ECDF; padding:1px 5px; border-radius:3px; font-size:0.9em; }
+  pre { background:var(--ink); color:#F6F2E7; padding:5mm; border-radius:6px; overflow:auto; font-size:9.5pt; line-height:1.55; }
+  pre code { background:transparent; color:inherit; padding:0; }
+  blockquote { border-left:3px solid var(--accent); margin:5mm 0; padding:2mm 5mm; font-family:'Fraunces',serif; font-size:13pt; line-height:1.5; color:#1A2036; font-style:italic; }
+  table { border-collapse:collapse; width:100%; margin:5mm 0; }
+  th, td { border-bottom:1px solid var(--rule); padding:2.5mm 3mm; text-align:left; vertical-align:top; }
+  th { background:#F1ECDF; font-weight:600; font-size:10pt; }
+  ul, ol { padding-left:6mm; margin:0 0 4mm; }
+  li { margin-bottom:1.5mm; }
+  img { max-width:100%; height:auto; border-radius:4px; }
+  hr { border:none; border-top:1px solid var(--rule); margin:8mm 0; }
+</style>
+</head>
+<body>${body}</body>
+</html>`;
+}
+
+function combineHtmls(htmls) {
+  const list = htmls.filter((h) => h && h.trim());
+  if (list.length === 0) return '';
+  if (list.length === 1) return list[0];
+  const bodies = list.map((h) => {
+    const m = h.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    return m ? m[1] : h;
+  });
+  const headMatch = list[0].match(/<head[^>]*>[\s\S]*?<\/head>/i);
+  const head = headMatch ? headMatch[0] : '<head><meta charset="utf-8"></head>';
+  const sep =
+    '<div style="page-break-before:always;break-before:page;height:0"></div>';
+  return `<!doctype html><html>${head}<body>${bodies.join(sep)}</body></html>`;
+}
+
+// ───────────────────────── PAGE PREPARATION ─────────────────────────
+
+async function prepareForPdf(page, opts) {
+  const {
+    expandAll,
+    forceVisible,
+    highlightLinks,
+    overridePageMargin,
+    customCss,
+    darkMode,
+    watermark,
+    autoToc,
+  } = opts;
+
   await page.evaluate(
-    ({ expandAll, forceVisible, highlightLinks, overridePageMargin }) => {
+    (args) => {
+      const {
+        expandAll,
+        forceVisible,
+        highlightLinks,
+        overridePageMargin,
+        customCss,
+        darkMode,
+        watermark,
+      } = args;
       const injectStyle = (css) => {
         const s = document.createElement('style');
         s.setAttribute('data-pdf-prep', '');
@@ -29,52 +138,38 @@ async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, ov
         document.head.appendChild(s);
       };
 
-      // Override @page rules from the source HTML so our margin/scale settings win
       if (overridePageMargin) {
         injectStyle(`@page { margin: ${overridePageMargin} !important; }`);
-        // Strip explicit @page margin rules from existing stylesheets too
         for (const sheet of Array.from(document.styleSheets)) {
           try {
             const rules = sheet.cssRules;
             if (!rules) continue;
             for (let i = rules.length - 1; i >= 0; i--) {
-              const rule = rules[i];
-              if (rule.type === 6 /* CSSRule.PAGE_RULE */) {
-                sheet.deleteRule(i);
-              }
+              if (rules[i].type === 6 /* CSSRule.PAGE_RULE */) sheet.deleteRule(i);
             }
-          } catch (e) { /* CORS or other access issues */ }
+          } catch (e) { /* CORS */ }
         }
       }
 
-      // Smart page-break protection — prevents headings from being orphaned and
-      // common card/box/section containers from being split across pages.
+      // Page-break protection (always on)
       injectStyle(`
         @media print, screen {
           h1, h2, h3, h4, h5, h6 {
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            page-break-after: avoid !important; break-after: avoid !important;
+            page-break-inside: avoid !important; break-inside: avoid !important;
           }
           figure, picture, table, blockquote, pre, dl, details,
           .card, [class~="card"], [class*="-card"],
           .box:not(body), [class~="box"]:not(body),
-          .tile, [class~="tile"],
-          .panel, [class~="panel"],
+          .tile, [class~="tile"], .panel, [class~="panel"],
           .alert, .callout, .quote, .frame,
           .station, .module, .feature, .item, .entry,
           li, .list-item {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            page-break-inside: avoid !important; break-inside: avoid !important;
           }
-          p {
-            orphans: 3 !important;
-            widows: 3 !important;
-          }
+          p { orphans: 3 !important; widows: 3 !important; }
           img, svg, video {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            page-break-inside: avoid !important; break-inside: avoid !important;
             max-width: 100% !important;
           }
         }
@@ -83,22 +178,17 @@ async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, ov
       if (forceVisible) {
         injectStyle(`
           *, *::before, *::after {
-            animation-duration: 0s !important;
-            animation-delay: 0s !important;
-            transition-duration: 0s !important;
-            transition-delay: 0s !important;
+            animation-duration: 0s !important; animation-delay: 0s !important;
+            transition-duration: 0s !important; transition-delay: 0s !important;
           }
           [data-aos], .aos-init, .aos-animate, .wow, .reveal, .animate-on-scroll,
           [class*="fade-"], [class*="slide-"], [class*="zoom-"] {
-            opacity: 1 !important;
-            transform: none !important;
-            visibility: visible !important;
+            opacity: 1 !important; transform: none !important; visibility: visible !important;
             animation-name: none !important;
           }
           [style*="opacity: 0"], [style*="opacity:0"] { opacity: 1 !important; }
           [x-cloak] { display: revert !important; }
         `);
-
         document.querySelectorAll('*').forEach((el) => {
           const cs = getComputedStyle(el);
           const op = parseFloat(cs.opacity);
@@ -113,15 +203,11 @@ async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, ov
           details > summary ~ * { display: revert !important; }
           .collapse, .collapsible, .accordion-collapse, .accordion-body,
           .tw-hidden, .is-collapsed, [data-collapsed="true"] {
-            display: block !important;
-            max-height: none !important;
-            height: auto !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            display: block !important; max-height: none !important; height: auto !important;
+            visibility: visible !important; opacity: 1 !important;
           }
           [aria-hidden="true"]:not(svg) { display: revert !important; }
         `);
-
         document.querySelectorAll('details').forEach((d) => (d.open = true));
         document.querySelectorAll('[hidden]').forEach((el) => el.removeAttribute('hidden'));
         document.querySelectorAll('[aria-expanded="false"]').forEach((el) => {
@@ -143,7 +229,6 @@ async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, ov
             t.removeAttribute('hidden');
           }
         });
-
         document.querySelectorAll('*').forEach((el) => {
           const cs = getComputedStyle(el);
           if (cs.maxHeight && cs.maxHeight !== 'none' && parseFloat(cs.maxHeight) === 0) {
@@ -165,25 +250,107 @@ async function prepareForPdf(page, { expandAll, forceVisible, highlightLinks, ov
         `);
       }
 
-      // Trigger lazy-loading: scroll to bottom then back up so IntersectionObserver fires
-      window.scrollTo(0, document.body.scrollHeight);
-      window.scrollTo(0, 0);
+      if (darkMode) {
+        injectStyle(`
+          html { filter: invert(1) hue-rotate(180deg) !important; background: #FAF8F3 !important; }
+          img, picture, video, svg, iframe, canvas,
+          [style*="background-image"], [style*="background:url"], [style*="background: url"] {
+            filter: invert(1) hue-rotate(180deg) !important;
+          }
+        `);
+      }
+
+      if (watermark) {
+        const wm = String(watermark).slice(0, 60);
+        const safe = wm.replace(/"/g, '\\"').replace(/\n/g, ' ');
+        injectStyle(`
+          body::before {
+            content: "${safe}" !important;
+            position: fixed !important;
+            top: 50% !important; left: 50% !important;
+            transform: translate(-50%, -50%) rotate(-30deg) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: ${Math.max(60, 720 / Math.max(wm.length, 4))}pt !important;
+            font-weight: 700 !important;
+            color: rgba(232, 85, 43, 0.10) !important;
+            z-index: 99999 !important;
+            pointer-events: none !important;
+            white-space: nowrap !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.08em !important;
+          }
+        `);
+      }
+
+      if (customCss) injectStyle(customCss);
     },
-    { expandAll, forceVisible, highlightLinks, overridePageMargin }
+    {
+      expandAll,
+      forceVisible,
+      highlightLinks,
+      overridePageMargin,
+      customCss,
+      darkMode,
+      watermark,
+    }
   );
 
-  // Give lazy-loaded content a beat
+  // Auto-TOC needs a separate pass after headings are stable
+  if (autoToc) {
+    const items = await page.evaluate(() => {
+      const heads = Array.from(document.querySelectorAll('h1, h2'));
+      return heads.map((h, i) => {
+        if (!h.id) h.id = `toc-${i}`;
+        return { level: h.tagName, text: h.textContent.trim().slice(0, 200), id: h.id };
+      });
+    });
+    if (items.length >= 2) {
+      const tocHtml = renderToc(items);
+      await page.evaluate((tocHtml) => {
+        document.body.insertAdjacentHTML('afterbegin', tocHtml);
+      }, tocHtml);
+    }
+  }
+
+  // Trigger lazy-loading
+  await page.evaluate(() => {
+    window.scrollTo(0, document.body.scrollHeight);
+    window.scrollTo(0, 0);
+  });
   await new Promise((r) => setTimeout(r, 300));
   await page.evaluateHandle('document.fonts.ready');
 }
+
+function renderToc(items) {
+  const li = items
+    .map(
+      (it) => `<li style="padding:5px 0;border-bottom:1px dashed #E7E1D4;font-size:${
+        it.level === 'H1' ? '14pt' : '11pt'
+      };margin-left:${it.level === 'H1' ? '0' : '12mm'};color:#11162A;list-style:none">
+        <a href="#${it.id}" style="color:inherit;text-decoration:none">${escapeHtml(it.text)}</a>
+      </li>`
+    )
+    .join('');
+  return `<section style="page-break-after:always;break-after:page;padding:30mm 25mm;font-family:'Inter',sans-serif;background:#FAF8F3;color:#11162A">
+    <div style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#5A6070;margin-bottom:8mm;font-weight:600">Inhaltsverzeichnis</div>
+    <h1 style="font-family:'Fraunces',serif;font-size:42pt;line-height:1.05;margin:0 0 14mm;font-weight:700;letter-spacing:-0.01em">Inhalt.</h1>
+    <ol style="list-style:none;padding:0;margin:0">${li}</ol>
+  </section>`;
+}
+
+// ───────────────────────── HANDLER ─────────────────────────
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const {
+  let {
     html,
+    htmls,
+    markdown,
+    url,
+    inputType = 'html',
     format = 'A4',
     landscape = false,
     margin = 'auto',
@@ -195,19 +362,42 @@ export default async function handler(req, res) {
     footer = '',
     pageNumbers = false,
     scale = 1,
+    output = 'pdf', // pdf | png | jpg
+    customCss = '',
+    darkMode = false,
+    watermark = '',
+    autoToc = false,
+    password = '',
   } = req.body ?? {};
 
   const safeScale = Math.min(2, Math.max(0.5, Number(scale) || 1));
-
-  if (!html || typeof html !== 'string' || html.length < 20) {
-    return res.status(400).json({ error: 'HTML fehlt oder ist zu kurz.' });
-  }
-  if (html.length > 5_000_000) {
-    return res.status(413).json({ error: 'HTML zu groß (max. 5 MB).' });
-  }
+  const outputType = ['pdf', 'png', 'jpg'].includes(output) ? output : 'pdf';
 
   let browser;
   try {
+    // Resolve input source → final HTML
+    if (inputType === 'url' || (url && !html && !markdown && !htmls)) {
+      if (!url) return res.status(400).json({ error: 'URL fehlt.' });
+      html = await fetchUrl(url);
+    } else if (inputType === 'markdown' || (markdown && !html && !htmls)) {
+      if (!markdown || markdown.trim().length < 3) {
+        return res.status(400).json({ error: 'Markdown fehlt.' });
+      }
+      html = markdownToHtml(markdown);
+    } else if (inputType === 'multi' || (Array.isArray(htmls) && htmls.length > 0)) {
+      if (!Array.isArray(htmls) || htmls.length === 0) {
+        return res.status(400).json({ error: 'Keine Snippets übergeben.' });
+      }
+      html = combineHtmls(htmls);
+    }
+
+    if (!html || typeof html !== 'string' || html.length < 20) {
+      return res.status(400).json({ error: 'Eingabe fehlt oder ist zu kurz.' });
+    }
+    if (html.length > 5_000_000) {
+      return res.status(413).json({ error: 'Eingabe zu groß (max. 5 MB).' });
+    }
+
     const isLocal = !process.env.AWS_LAMBDA_FUNCTION_VERSION && !process.env.VERCEL;
 
     browser = await puppeteer.launch({
@@ -222,19 +412,14 @@ export default async function handler(req, res) {
       defaultViewport: { width: 1240, height: 1754, deviceScaleFactor: 2 },
     });
 
+    // Margin resolution
     let marginStr, marginValue, userWantsMargin;
     if (String(margin) === 'auto') {
-      // If the source HTML defines its own @page margin, respect it (full-bleed designs).
-      // Otherwise apply a sensible 12mm default for AI-generated/raw HTML.
       const hasPageMarginRule = /@page[^{]*\{[^}]*margin\s*:/i.test(html);
       if (hasPageMarginRule) {
-        marginStr = '0mm';
-        marginValue = 0;
-        userWantsMargin = false;
+        marginStr = '0mm'; marginValue = 0; userWantsMargin = false;
       } else {
-        marginStr = '12mm';
-        marginValue = 12;
-        userWantsMargin = true;
+        marginStr = '12mm'; marginValue = 12; userWantsMargin = true;
       }
     } else {
       marginStr = /\D/.test(String(margin)) ? String(margin) : `${margin}mm`;
@@ -245,8 +430,8 @@ export default async function handler(req, res) {
     const hasHeader = Boolean(header && header.trim());
     const hasFooter = Boolean((footer && footer.trim()) || pageNumbers);
     const userWantsCustomScale = safeScale !== 1;
-    const useExplicitLayout = userWantsMargin || hasHeader || hasFooter || userWantsCustomScale;
-    // Effective margin to enforce on the page. Header/footer need at least 18mm.
+    const useExplicitLayout =
+      userWantsMargin || hasHeader || hasFooter || userWantsCustomScale;
     const effectiveMargin =
       hasHeader || hasFooter ? '18mm' : userWantsMargin ? marginStr : null;
 
@@ -258,33 +443,53 @@ export default async function handler(req, res) {
       forceVisible,
       highlightLinks,
       overridePageMargin: effectiveMargin,
+      customCss,
+      darkMode,
+      watermark,
+      autoToc,
     });
 
+    const safeName =
+      String(filename).replace(/[^\w.\-]/g, '_').slice(0, 80) || 'document';
+
+    // ─── Image output ──────────────────────────────────────────
+    if (outputType === 'png' || outputType === 'jpg') {
+      const buffer = await page.screenshot({
+        fullPage: true,
+        type: outputType === 'jpg' ? 'jpeg' : 'png',
+        quality: outputType === 'jpg' ? 92 : undefined,
+        omitBackground: false,
+      });
+      const ext = outputType === 'jpg' ? 'jpg' : 'png';
+      const name = safeName.endsWith(`.${ext}`) ? safeName : `${safeName.replace(/\.\w+$/, '')}.${ext}`;
+      res.setHeader('Content-Type', `image/${outputType === 'jpg' ? 'jpeg' : 'png'}`);
+      res.setHeader('Content-Disposition', `attachment; filename="${name}"`);
+      res.setHeader('Content-Length', buffer.length);
+      return res.status(200).end(Buffer.from(buffer));
+    }
+
+    // ─── PDF output ────────────────────────────────────────────
     const wrap = (content) =>
       `<div style="width:100%;font-family:Inter,system-ui,sans-serif;font-size:9px;color:#5A6070;padding:0 12mm;display:flex;justify-content:space-between;align-items:center;">${content}</div>`;
 
     const headerTemplate = hasHeader
       ? wrap(`<span>${escapeHtml(header)}</span><span></span>`)
       : '<span></span>';
-
     const footerParts = [];
-    if (footer && footer.trim()) footerParts.push(`<span>${escapeHtml(footer)}</span>`);
-    else footerParts.push('<span></span>');
-    if (pageNumbers)
-      footerParts.push(
-        `<span><span class="pageNumber"></span> / <span class="totalPages"></span></span>`
-      );
-    else footerParts.push('<span></span>');
-
+    footerParts.push(footer && footer.trim() ? `<span>${escapeHtml(footer)}</span>` : '<span></span>');
+    footerParts.push(
+      pageNumbers
+        ? `<span><span class="pageNumber"></span> / <span class="totalPages"></span></span>`
+        : '<span></span>'
+    );
     const footerTemplate = hasFooter ? wrap(footerParts.join('')) : '<span></span>';
 
-    // Headers/footers need non-zero margin to be visible
     const headerFooterMargin =
       hasHeader || hasFooter
         ? { top: '18mm', bottom: '18mm' }
         : { top: marginStr, bottom: marginStr };
 
-    const pdf = await page.pdf({
+    let pdf = await page.pdf({
       format,
       landscape: Boolean(landscape),
       printBackground: true,
@@ -301,21 +506,44 @@ export default async function handler(req, res) {
       },
     });
 
-    const safeName = String(filename).replace(/[^\w.\-]/g, '_').slice(0, 80) || 'document.pdf';
+    // Optional encryption
+    if (password && String(password).trim().length > 0) {
+      pdf = await encryptPdf(pdf, String(password).trim());
+    }
+
     const pdfBuffer = Buffer.from(pdf);
+    const name = safeName.endsWith('.pdf') ? safeName : `${safeName.replace(/\.\w+$/, '')}.pdf`;
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${name}"`);
     res.setHeader('Content-Length', pdfBuffer.length);
-    res.status(200).end(pdfBuffer);
+    return res.status(200).end(pdfBuffer);
   } catch (error) {
-    console.error('PDF conversion failed:', error);
-    res.status(500).json({ error: error.message ?? 'Unbekannter Fehler.' });
+    console.error('Conversion failed:', error);
+    return res.status(500).json({ error: error.message ?? 'Unbekannter Fehler.' });
   } finally {
     if (browser) {
       try { await browser.close(); } catch {}
     }
   }
+}
+
+async function encryptPdf(pdfBytes, password) {
+  const pdfDoc = await PDFDocument.load(pdfBytes);
+  await pdfDoc.encrypt({
+    userPassword: password,
+    ownerPassword: password,
+    permissions: {
+      printing: 'highResolution',
+      modifying: false,
+      copying: false,
+      annotating: false,
+      fillingForms: true,
+      contentAccessibility: true,
+      documentAssembly: false,
+    },
+  });
+  return await pdfDoc.save({ useObjectStreams: false });
 }
 
 function escapeHtml(str) {

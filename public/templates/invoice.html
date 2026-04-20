@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>Rechnung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#FAF8F3; --ink:#11162A; --muted:#5A6070; --rule:#E7E1D4; --accent:#E8552B; }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+               font-family:'Inter', sans-serif; font-size:10.5pt; line-height:1.5; }
+  .page { width:210mm; min-height:297mm; padding:22mm 22mm; position:relative; }
+
+  .head { display:grid; grid-template-columns: 1fr 1fr; gap:20mm; margin-bottom:14mm; padding-bottom:8mm; border-bottom:1px solid var(--rule); }
+  .brand { font-family:'Fraunces', serif; font-size:28pt; font-weight:700; line-height:1; }
+  .brand em { color:var(--accent); font-style:italic; }
+  .brand-sub { font-size:9.5pt; color:var(--muted); margin-top:2mm; letter-spacing:0.05em; }
+  .doc-meta { text-align:right; font-size:10pt; }
+  .doc-meta .label { color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; font-size:9pt; }
+  .doc-meta .num { font-family:'JetBrains Mono', monospace; font-size:14pt; font-weight:500; margin:1mm 0 4mm; }
+
+  .parties { display:grid; grid-template-columns: 1fr 1fr; gap:20mm; margin-bottom:14mm; }
+  .party h3 { font-size:9pt; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin:0 0 3mm; font-weight:600; }
+  .party b { display:block; font-size:11pt; color:var(--ink); margin-bottom:1mm; }
+  .party { color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; margin-bottom:6mm; }
+  thead { background:var(--ink); color:var(--paper); }
+  th { padding:3mm 4mm; text-align:left; font-size:9pt; letter-spacing:0.1em; text-transform:uppercase; font-weight:600; }
+  th.num, td.num { text-align:right; font-variant-numeric:tabular-nums; font-family:'JetBrains Mono', monospace; }
+  td { padding:3mm 4mm; border-bottom:1px solid var(--rule); }
+  td.desc b { color:var(--ink); }
+  td.desc small { color:var(--muted); display:block; margin-top:0.5mm; font-size:9pt; }
+
+  .totals { width:80mm; margin-left:auto; margin-top:4mm; }
+  .totals .row { display:flex; justify-content:space-between; padding:2mm 0; }
+  .totals .row.grand { border-top:2px solid var(--ink); margin-top:2mm; padding-top:3mm;
+                       font-size:13pt; font-weight:700; }
+  .totals .row.grand .v { color:var(--accent); }
+
+  .footer { position:absolute; bottom:18mm; left:22mm; right:22mm;
+            border-top:1px solid var(--rule); padding-top:4mm;
+            display:grid; grid-template-columns: repeat(3, 1fr); gap:8mm;
+            font-size:9pt; color:var(--muted); }
+  .footer h4 { font-size:9pt; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink); margin:0 0 1mm; font-weight:600; }
+</style>
+</head>
+<body>
+<section class="page">
+  <header class="head">
+    <div>
+      <div class="brand">Atlas&nbsp;<em>Studio.</em></div>
+      <div class="brand-sub">Design · Strategy · Production</div>
+    </div>
+    <div class="doc-meta">
+      <div class="label">Rechnungsnummer</div>
+      <div class="num">2026-00481</div>
+      <div class="label">Rechnungsdatum</div>
+      <div>20. April 2026</div>
+      <div class="label" style="margin-top:3mm;">Fällig bis</div>
+      <div>04. Mai 2026</div>
+    </div>
+  </header>
+
+  <div class="parties">
+    <div class="party">
+      <h3>Rechnungssteller</h3>
+      <b>Atlas Studio GmbH</b>
+      Mariahilfer Straße 88<br>
+      1070 Wien · Österreich<br>
+      ATU 123 456 78<br>
+      hello@atlasstudio.at
+    </div>
+    <div class="party">
+      <h3>Rechnungsempfänger</h3>
+      <b>Lumen Beratung e.U.</b>
+      Praterstraße 14/3<br>
+      1020 Wien · Österreich<br>
+      ATU 987 654 32<br>
+      buchhaltung@lumen.at
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:46%;">Leistung</th>
+        <th class="num" style="width:14%;">Menge</th>
+        <th class="num" style="width:18%;">Einzelpreis</th>
+        <th class="num" style="width:22%;">Summe</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="desc"><b>Discovery Workshop</b><small>2-tägiger Strategie-Sprint mit Stakeholder-Interviews</small></td>
+        <td class="num">1</td><td class="num">€ 4.800,00</td><td class="num">€ 4.800,00</td>
+      </tr>
+      <tr>
+        <td class="desc"><b>Design System v2</b><small>Token-Architektur, Komponenten-Bibliothek, Dokumentation</small></td>
+        <td class="num">1</td><td class="num">€ 12.500,00</td><td class="num">€ 12.500,00</td>
+      </tr>
+      <tr>
+        <td class="desc"><b>Iterations- und Beratungsstunden</b><small>April 2026, Senior-Tarif</small></td>
+        <td class="num">28</td><td class="num">€ 145,00</td><td class="num">€ 4.060,00</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <div class="row"><span>Zwischensumme</span><span class="v">€ 21.360,00</span></div>
+    <div class="row"><span>USt. 20 %</span><span class="v">€ 4.272,00</span></div>
+    <div class="row grand"><span>Gesamt</span><span class="v">€ 25.632,00</span></div>
+  </div>
+
+  <footer class="footer">
+    <div><h4>Bankverbindung</h4>Erste Bank · IBAN AT 12 3456 7890 1234 5678 · BIC GIBAATWWXXX</div>
+    <div><h4>Zahlungshinweis</h4>Bitte Rechnungsnummer 2026-00481 als Verwendungszweck angeben.</div>
+    <div><h4>Konditionen</h4>Zahlung netto 14 Tage. Bei Fragen: hello@atlasstudio.at</div>
+  </footer>
+</section>
+</body>
+</html>

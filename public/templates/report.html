@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>One-Pager Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#FAF8F3; --ink:#11162A; --muted:#5A6070; --rule:#E7E1D4; --accent:#E8552B; --good:#2E7D5B; --warn:#C9711A; }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+               font-family:'Inter', sans-serif; font-size:10pt; line-height:1.55; }
+  .page { width:210mm; min-height:297mm; padding:20mm 22mm; }
+
+  .head { display:flex; justify-content:space-between; align-items:flex-end;
+          padding-bottom:6mm; border-bottom:1px solid var(--rule); margin-bottom:8mm; }
+  .head .meta { font-size:9pt; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; }
+  .head .meta .accent { color:var(--accent); font-weight:600; }
+
+  h1 { font-family:'Fraunces', serif; font-size:34pt; line-height:1.05; margin:2mm 0 6mm; max-width:160mm; font-weight:700; }
+  h1 em { font-style:italic; color:var(--accent); }
+
+  .lede { font-size:12pt; line-height:1.55; max-width:160mm; color:#242A40; margin-bottom:8mm; }
+
+  .stat-row { display:grid; grid-template-columns:repeat(4, 1fr); gap:6mm; margin:6mm 0 8mm; }
+  .stat { border-top:2px solid var(--ink); padding-top:3mm; }
+  .stat .num { font-family:'Fraunces', serif; font-size:24pt; line-height:1; color:var(--accent); font-weight:700; }
+  .stat .num.good { color:var(--good); }
+  .stat .num.warn { color:var(--warn); }
+  .stat .label { font-size:8.5pt; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-top:2mm; }
+  .stat .delta { font-size:9pt; color:var(--muted); margin-top:1mm; }
+
+  .grid-2 { display:grid; grid-template-columns:1.4fr 1fr; gap:8mm; margin-top:6mm; }
+  h2 { font-family:'Inter', sans-serif; font-size:11pt; letter-spacing:0.18em; text-transform:uppercase;
+       color:var(--ink); margin:0 0 4mm; padding-bottom:2mm; border-bottom:1px solid var(--rule); font-weight:600; }
+
+  .findings { display:grid; gap:4mm; }
+  .finding { display:grid; grid-template-columns:8mm 1fr; gap:3mm; break-inside:avoid; }
+  .finding .num { font-family:'Fraunces', serif; font-size:18pt; color:var(--accent); line-height:1; font-weight:700; }
+  .finding .body b { display:block; font-size:11pt; margin-bottom:1mm; }
+  .finding .body p { margin:0; color:#2A2E42; }
+
+  .actions { background:#FFFDF7; border:1px solid var(--rule); border-radius:6px; padding:6mm; }
+  .actions ul { margin:0; padding-left:5mm; }
+  .actions li { margin-bottom:3mm; }
+  .actions li b { display:block; }
+  .actions li small { color:var(--muted); }
+
+  .footer { margin-top:10mm; padding-top:4mm; border-top:1px solid var(--rule);
+            display:flex; justify-content:space-between;
+            color:var(--muted); font-size:9pt; letter-spacing:0.1em; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<section class="page">
+  <header class="head">
+    <div class="meta"><span class="accent">Quartalsbericht</span> · Q1 2026</div>
+    <div class="meta">Atlas&nbsp;Studio · Internal</div>
+  </header>
+
+  <h1>Wachstum mit <em>Substanz.</em></h1>
+  <p class="lede">Q1 schließt 14 % über Plan. Treiber: drei neue Enterprise-Kunden und ein deutlich verbessertes Onboarding. Risiken liegen im Hiring-Tempo und der Auslastung Senior Designer.</p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num good">+14%</div><div class="label">Umsatz vs. Plan</div><div class="delta">+9% YoY</div></div>
+    <div class="stat"><div class="num">€842k</div><div class="label">MRR (Q1-Ende)</div><div class="delta">+€68k im Quartal</div></div>
+    <div class="stat"><div class="num good">94%</div><div class="label">Net Revenue Retention</div><div class="delta">+3 pp</div></div>
+    <div class="stat"><div class="num warn">112%</div><div class="label">Auslastung Senior</div><div class="delta">über Sollwert</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <h2>Erkenntnisse</h2>
+      <div class="findings">
+        <div class="finding"><div class="num">1</div><div class="body"><b>Onboarding-Redesign zahlt sich aus.</b><p>Time-to-First-Value sank von 12 auf 5 Tagen. Aktivierungsrate stieg von 41 % auf 63 %.</p></div></div>
+        <div class="finding"><div class="num">2</div><div class="body"><b>Enterprise-Pipeline wächst überproportional.</b><p>3 Abschlüsse über €120k im Quartal — historischer Höchststand.</p></div></div>
+        <div class="finding"><div class="num">3</div><div class="body"><b>Hiring bleibt Engpass.</b><p>Drei offene Senior-Rollen seit über 90 Tagen. Externes Recruiting wird in Q2 ausgebaut.</p></div></div>
+        <div class="finding"><div class="num">4</div><div class="body"><b>Mobile-Nutzung verschiebt sich.</b><p>52 % der neuen Kunden onboarden primär mobil — Implikationen für Q2-Roadmap.</p></div></div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Maßnahmen Q2</h2>
+      <div class="actions">
+        <ul>
+          <li><b>Hiring-Sprint April</b><small>3 Senior-Designer, 2 PMs — Budget freigegeben.</small></li>
+          <li><b>Mobile-First Audit</b><small>Designsystem auf Touch-Patterns überprüfen.</small></li>
+          <li><b>Enterprise-Onboarding</b><small>Eigener Track mit dediziertem CSM.</small></li>
+          <li><b>Auslastung Senior</b><small>Junior-Hires schneller hochziehen, klare Übergaben.</small></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>Verfasser: M. Lindqvist · A. Negru</span>
+    <span>Vorgelegt: 20. April 2026</span>
+  </footer>
+</section>
+</body>
+</html>

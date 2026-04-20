@@ -3,157 +3,150 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>HTML → PDF</title>
+<title>HTML → PDF · Konverter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper:   #FAF8F3;
+    --paper-2: #FFFDF7;
     --ink:     #11162A;
+    --ink-2:   #242A40;
     --muted:   #5A6070;
     --rule:    #E7E1D4;
     --accent:  #E8552B;
     --chip-bg: #F1ECDF;
+    --good:    #2E7D5B;
+    --warn:    #C9711A;
   }
-
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--paper); color: var(--ink);
-    font-family: 'Inter', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-  }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+               font-family:'Inter', system-ui, sans-serif; -webkit-font-smoothing:antialiased; min-height:100vh; }
 
-  header {
-    padding: 28px 40px;
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid var(--rule);
-  }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600;
-           letter-spacing: 0.2em; text-transform: uppercase; font-size: 11px; }
-  .brand .dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
-  header .meta { font-size: 11px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+  /* ─── HEADER ─── */
+  header.top { padding:22px 36px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--rule); }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; font-size:11px; }
+  .brand .dot { width:10px; height:10px; background:var(--accent); border-radius:50%; }
+  header .meta { font-size:11px; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; }
 
-  main { max-width: 1180px; margin: 0 auto; padding: 48px 40px 80px; }
+  /* ─── HERO ─── */
+  main { max-width:1240px; margin:0 auto; padding:36px 36px 80px; }
+  .hero { max-width:780px; margin-bottom:28px; }
+  .chapter-tag { display:inline-flex; align-items:center; gap:8px; background:var(--chip-bg); color:var(--ink); padding:5px 14px; border-radius:999px;
+                 font-size:11px; letter-spacing:0.14em; text-transform:uppercase; font-weight:600; }
+  h1 { font-family:'Fraunces',serif; font-weight:700; font-size:clamp(36px, 5.5vw, 56px); line-height:1.05; letter-spacing:-0.015em; margin:18px 0 12px; }
+  h1 em { font-style:italic; color:var(--accent); }
+  .hero p { font-size:16px; line-height:1.55; color:var(--ink-2); max-width:620px; margin:0; }
 
-  .hero { max-width: 760px; margin-bottom: 36px; }
-  .chapter-tag {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--chip-bg); color: var(--ink);
-    padding: 5px 14px; border-radius: 999px;
-    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
-  }
-  h1 {
-    font-family: 'Fraunces', 'Times New Roman', serif; font-weight: 700;
-    font-size: clamp(40px, 6vw, 64px); line-height: 1.05; letter-spacing: -0.015em;
-    margin: 20px 0 14px;
-  }
-  h1 em { font-style: italic; color: var(--accent); }
-  .hero p { font-size: 17px; line-height: 1.55; color: #242A40; max-width: 620px; margin: 0; }
+  /* ─── WORKSPACE ─── */
+  .workspace { display:grid; grid-template-columns:1.55fr 1fr; gap:24px; }
+  @media (max-width: 980px) { .workspace { grid-template-columns:1fr; } }
 
-  .workspace {
-    display: grid; grid-template-columns: 1.6fr 1fr; gap: 28px;
-    margin-top: 14px;
-  }
-  @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+  .panel { background:var(--paper-2); border:1px solid var(--rule); border-radius:8px; padding:18px; }
+  .panel h3 { font-family:'Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; }
 
-  .panel {
-    background: #FFFDF7;
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    padding: 20px;
-  }
-  .panel h3 {
-    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
-    margin: 0 0 14px;
-  }
+  /* ─── TABS ─── */
+  .tabs { display:flex; gap:2px; margin-bottom:14px; background:#F1ECDF; padding:3px; border-radius:8px; }
+  .tab { flex:1; background:transparent; border:none; padding:9px 8px; font-family:'Inter',sans-serif; font-size:12.5px; font-weight:500; color:var(--muted); cursor:pointer; border-radius:6px; transition:all .15s; }
+  .tab:hover { color:var(--ink); }
+  .tab.active { background:var(--paper-2); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,0.06); font-weight:600; }
 
-  textarea {
-    width: 100%; min-height: 460px;
-    background: #FCFAF4; color: var(--ink);
-    border: 1px solid var(--rule); border-radius: 6px;
-    padding: 14px 16px;
-    font-family: 'JetBrains Mono', Menlo, monospace;
-    font-size: 12.5px; line-height: 1.55;
-    resize: vertical;
-    outline: none;
+  .sub-tabs { display:inline-flex; gap:2px; margin-bottom:10px; background:#EFEAD9; padding:2px; border-radius:6px; font-size:11.5px; }
+  .sub-tab { background:transparent; border:none; padding:5px 12px; cursor:pointer; color:var(--muted); border-radius:4px; font-family:inherit; font-weight:500; }
+  .sub-tab.active { background:var(--paper-2); color:var(--ink); }
+
+  /* ─── INPUTS ─── */
+  textarea, .preview-frame, .url-input, .text-input {
+    width:100%; background:#FCFAF4; color:var(--ink); border:1px solid var(--rule); border-radius:6px;
+    padding:14px 16px; font-family:'JetBrains Mono', Menlo, monospace; font-size:12.5px; line-height:1.55;
+    outline:none; resize:vertical;
   }
-  textarea:focus { border-color: var(--ink); }
+  textarea { min-height:480px; }
+  .url-input { font-family:'Inter',sans-serif; font-size:14px; padding:14px 16px; min-height:auto; }
+  .text-input { font-family:'Inter',sans-serif; font-size:14px; padding:10px 12px; min-height:auto; }
+  textarea:focus, .url-input:focus, .text-input:focus, select:focus { border-color:var(--ink); }
 
-  .controls { display: grid; gap: 16px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .field select, .field input[type="text"] {
-    background: #FCFAF4; border: 1px solid var(--rule); border-radius: 6px;
-    padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink);
-    outline: none;
+  .preview-frame { height:480px; padding:0; overflow:hidden; background:#FFF; }
+  .preview-frame iframe { width:100%; height:100%; border:none; background:#FFF; }
+
+  /* ─── DROP ZONE ─── */
+  .drop-active textarea, .drop-active .url-input { background:#FFF6E6; border-color:var(--accent); border-style:dashed; }
+
+  /* ─── TEMPLATES GRID ─── */
+  .templates-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; }
+  .tpl-card { background:#FCFAF4; border:1px solid var(--rule); border-radius:6px; padding:14px; cursor:pointer; transition:all .15s; text-align:left; font-family:inherit; }
+  .tpl-card:hover { border-color:var(--ink); transform:translateY(-1px); box-shadow:0 4px 10px rgba(0,0,0,0.04); }
+  .tpl-card .tpl-tag { display:inline-block; font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:5px; }
+  .tpl-card h4 { font-family:'Fraunces',serif; font-size:16pt; font-weight:700; margin:0 0 4px; line-height:1.1; color:var(--ink); }
+  .tpl-card p { margin:0; font-size:11.5px; line-height:1.45; color:var(--muted); }
+
+  /* ─── MULTI SNIPPETS ─── */
+  .snippet { position:relative; margin-bottom:12px; }
+  .snippet textarea { min-height:180px; padding-right:42px; }
+  .snippet .snippet-label { position:absolute; top:8px; left:14px; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); font-weight:600; pointer-events:none; }
+  .snippet .snippet-remove { position:absolute; top:6px; right:6px; background:#EFEAD9; border:none; width:28px; height:28px; border-radius:5px; cursor:pointer; font-size:14px; color:var(--muted); }
+  .snippet .snippet-remove:hover { background:var(--accent); color:white; }
+  .add-snippet { width:100%; padding:10px; background:transparent; border:1px dashed var(--rule); border-radius:6px; cursor:pointer; color:var(--muted); font-family:inherit; font-size:13px; }
+  .add-snippet:hover { border-color:var(--ink); color:var(--ink); }
+
+  /* ─── SETTINGS ─── */
+  .settings details { border:1px solid var(--rule); border-radius:6px; margin-bottom:8px; background:#FCFAF4; }
+  .settings details[open] { background:var(--paper-2); }
+  .settings summary { padding:11px 14px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink); list-style:none; display:flex; justify-content:space-between; align-items:center; user-select:none; }
+  .settings summary::-webkit-details-marker { display:none; }
+  .settings summary::after { content:"+"; font-size:18px; color:var(--muted); font-weight:300; }
+  .settings details[open] summary::after { content:"−"; }
+  .settings .body { padding:4px 14px 14px; display:flex; flex-direction:column; gap:11px; }
+
+  .field { display:flex; flex-direction:column; gap:5px; }
+  .field label { font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .field select, .field input[type="text"], .field input[type="password"], .field input[type="number"] {
+    background:#FCFAF4; border:1px solid var(--rule); border-radius:5px; padding:8px 10px;
+    font-family:'Inter',sans-serif; font-size:13px; color:var(--ink); outline:none;
   }
-  .field select:focus, .field input:focus { border-color: var(--ink); }
+  .field textarea { min-height:80px; font-size:11.5px; }
 
-  .toggle { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
-  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .toggle { display:flex; align-items:center; gap:9px; font-size:13px; cursor:pointer; }
+  .toggle input { width:15px; height:15px; accent-color:var(--accent); margin:0; }
 
-  .range-row { display: flex; align-items: center; gap: 12px; }
-  .range-row input[type="range"] { flex: 1; accent-color: var(--accent); }
-  .range-row .val {
-    font-family: 'JetBrains Mono', monospace; font-size: 13px;
-    min-width: 52px; text-align: right; color: var(--ink); font-weight: 500;
-  }
+  .range-row { display:flex; align-items:center; gap:10px; }
+  .range-row input[type="range"] { flex:1; accent-color:var(--accent); }
+  .range-row .val { font-family:'JetBrains Mono', monospace; font-size:12.5px; min-width:48px; text-align:right; color:var(--ink); font-weight:500; }
 
-  .actions { display: flex; gap: 10px; margin-top: 8px; }
+  .actions { display:grid; gap:8px; margin-top:14px; }
   button.primary {
-    flex: 1;
-    background: var(--ink); color: var(--paper);
-    border: none; border-radius: 6px;
-    padding: 14px 18px;
-    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    cursor: pointer; transition: transform .15s ease, background .15s ease;
+    background:var(--ink); color:var(--paper); border:none; border-radius:6px;
+    padding:14px 18px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+    letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; transition:background .15s;
   }
-  button.primary:hover:not(:disabled) { background: var(--accent); }
-  button.primary:disabled { opacity: 0.55; cursor: wait; }
+  button.primary:hover:not(:disabled) { background:var(--accent); }
+  button.primary:disabled { opacity:0.55; cursor:wait; }
 
-  button.ghost {
-    background: transparent; color: var(--ink);
-    border: 1px solid var(--rule); border-radius: 6px;
-    padding: 14px 18px;
-    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
-    cursor: pointer;
-  }
-  button.ghost:hover { border-color: var(--ink); }
-
-  .status {
-    margin-top: 16px; padding: 12px 14px;
-    border-radius: 6px; font-size: 13px;
-    display: none;
-  }
-  .status.visible { display: block; }
-  .status.info  { background: #F1ECDF; color: #4A4633; }
-  .status.error { background: #FCEAE2; color: #7A2818; }
-  .status.success { background: #EDF3EB; color: #2A4A2B; }
+  .status { padding:11px 13px; border-radius:6px; font-size:12.5px; display:none; line-height:1.5; }
+  .status.visible { display:block; }
+  .status.info  { background:#F1ECDF; color:#4A4633; }
+  .status.error { background:#FCEAE2; color:#7A2818; }
+  .status.success { background:#EDF3EB; color:#2A4A2B; }
 
   .hint {
-    margin-top: 22px; padding: 16px 18px;
-    border-left: 3px solid var(--accent);
-    color: #242A40; font-size: 13px; line-height: 1.55;
-    background: #FCFAF4;
+    margin-top:22px; padding:14px 16px;
+    border-left:3px solid var(--accent); color:var(--ink-2); font-size:12.5px; line-height:1.55;
+    background:var(--paper-2);
   }
-  .hint b { font-weight: 600; }
+  .hint code { font-family:'JetBrains Mono',monospace; background:#F1ECDF; padding:1px 5px; border-radius:3px; font-size:0.92em; }
 
-  footer {
-    margin-top: 60px; padding: 20px 40px;
-    border-top: 1px solid var(--rule);
-    display: flex; justify-content: space-between;
-    color: var(--muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  }
+  footer { margin-top:60px; padding:18px 36px; border-top:1px solid var(--rule);
+           display:flex; justify-content:space-between; color:var(--muted); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; }
+
+  /* ─── PANE VISIBILITY ─── */
+  .pane { display:none; }
+  .pane.active { display:block; }
 </style>
 </head>
 <body>
 
-<header>
+<header class="top">
   <div class="brand"><span class="dot"></span><span>HTML&nbsp;→&nbsp;PDF</span></div>
   <div class="meta">Edition · 2026</div>
 </header>
@@ -162,83 +155,174 @@
   <div class="hero">
     <span class="chapter-tag">Konverter · für jedes HTML</span>
     <h1>HTML rein. <em>Designtes PDF</em> raus.</h1>
-    <p>Füge beliebigen HTML-Code ein — Lebenslauf, Artikel, Whitepaper, Einladung. Schriftarten, Farben, Bilder und Layout werden 1:1 ins PDF übernommen.</p>
+    <p>Lebenslauf, Artikel, Whitepaper, Einladung — Schriftarten, Farben, Bilder und Layout werden 1:1 übernommen. Fertige Vorlagen, Markdown-Modus, URL-Import und mehr.</p>
   </div>
 
   <div class="workspace">
+    <!-- ═══════════ LEFT: INPUT ═══════════ -->
     <section class="panel">
-      <h3>HTML-Code</h3>
-      <textarea id="html" spellcheck="false" placeholder="<!doctype html>&#10;<html>&#10;  <head>...</head>&#10;  <body>&#10;    Dein Inhalt hier ...&#10;  </body>&#10;</html>"></textarea>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-pane="html">HTML</button>
+        <button class="tab" data-pane="markdown">Markdown</button>
+        <button class="tab" data-pane="url">URL</button>
+        <button class="tab" data-pane="templates">Vorlagen</button>
+        <button class="tab" data-pane="multi">Mehrseitig</button>
+      </div>
+
+      <!-- HTML pane -->
+      <div class="pane active" data-pane="html">
+        <div class="sub-tabs">
+          <button class="sub-tab active" data-view="code-html">Code</button>
+          <button class="sub-tab" data-view="preview-html">Vorschau</button>
+        </div>
+        <div data-view="code-html">
+          <textarea id="htmlInput" spellcheck="false" placeholder="<!doctype html>&#10;<html>&#10;  <head>...</head>&#10;  <body>&#10;    Dein Inhalt hier — oder ziehe eine .html-Datei hierher.&#10;  </body>&#10;</html>"></textarea>
+        </div>
+        <div data-view="preview-html" style="display:none;">
+          <div class="preview-frame"><iframe id="htmlPreview" sandbox="allow-same-origin"></iframe></div>
+        </div>
+      </div>
+
+      <!-- Markdown pane -->
+      <div class="pane" data-pane="markdown">
+        <div class="sub-tabs">
+          <button class="sub-tab active" data-view="code-md">Markdown</button>
+          <button class="sub-tab" data-view="preview-md">Vorschau</button>
+        </div>
+        <div data-view="code-md">
+          <textarea id="mdInput" spellcheck="false" placeholder="# Überschrift&#10;&#10;Ein Absatz mit **Fettem** und *Kursivem* Text.&#10;&#10;## Unterabschnitt&#10;&#10;- Listenpunkt 1&#10;- Listenpunkt 2&#10;&#10;> Ein Zitat.&#10;&#10;```&#10;Code-Block&#10;```"></textarea>
+        </div>
+        <div data-view="preview-md" style="display:none;">
+          <div class="preview-frame"><iframe id="mdPreview" sandbox="allow-same-origin"></iframe></div>
+        </div>
+      </div>
+
+      <!-- URL pane -->
+      <div class="pane" data-pane="url">
+        <div class="field" style="margin-bottom:10px;">
+          <label for="urlInput">Webseiten-URL</label>
+          <input type="text" id="urlInput" class="url-input" placeholder="https://example.com/artikel" />
+        </div>
+        <p style="margin:0;font-size:12px;color:var(--muted);line-height:1.5;">Das Tool lädt die Seite, rendert sie und gibt sie als PDF aus. Funktioniert nur für öffentliche, nicht passwort-geschützte Seiten.</p>
+      </div>
+
+      <!-- Templates pane -->
+      <div class="pane" data-pane="templates">
+        <p style="margin:0 0 12px;font-size:12.5px;color:var(--muted);">Klick auf eine Vorlage, um sie in den HTML-Editor zu laden.</p>
+        <div class="templates-grid" id="templatesGrid"></div>
+      </div>
+
+      <!-- Multi pane -->
+      <div class="pane" data-pane="multi">
+        <p style="margin:0 0 12px;font-size:12.5px;color:var(--muted);">Mehrere HTML-Snippets werden mit Seitenumbruch dazwischen zu einem PDF kombiniert.</p>
+        <div id="snippets"></div>
+        <button class="add-snippet" id="addSnippet">+ Seite hinzufügen</button>
+      </div>
     </section>
 
-    <aside class="panel">
+    <!-- ═══════════ RIGHT: SETTINGS ═══════════ -->
+    <aside class="panel settings">
       <h3>Einstellungen</h3>
-      <div class="controls">
-        <div class="field">
-          <label for="filename">Dateiname</label>
-          <input type="text" id="filename" value="dokument.pdf" />
-        </div>
-        <div class="field">
-          <label for="format">Papierformat</label>
-          <select id="format">
-            <option value="A4" selected>A4</option>
-            <option value="A3">A3</option>
-            <option value="A5">A5</option>
-            <option value="Letter">Letter</option>
-            <option value="Legal">Legal</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="margin">Seitenrand</label>
-          <select id="margin">
-            <option value="auto" selected>Auto — passt sich dem HTML an</option>
-            <option value="0">Vollflächig (0 mm)</option>
-            <option value="10">Schmal (10 mm)</option>
-            <option value="12">Standard (12 mm)</option>
-            <option value="20">Großzügig (20 mm)</option>
-            <option value="25">Sehr großzügig (25 mm)</option>
-          </select>
-        </div>
-        <label class="toggle"><input type="checkbox" id="landscape" /> Querformat</label>
 
-        <div class="field">
-          <label for="scale">Zoom · <span id="scaleVal" style="color:var(--ink);font-weight:500;">100%</span></label>
-          <div class="range-row">
-            <input type="range" id="scale" min="50" max="150" step="5" value="100" />
+      <details open>
+        <summary>Format & Layout</summary>
+        <div class="body">
+          <div class="field">
+            <label for="filename">Dateiname</label>
+            <input type="text" id="filename" value="dokument" />
+          </div>
+          <div class="field">
+            <label for="output">Ausgabeformat</label>
+            <select id="output">
+              <option value="pdf" selected>PDF</option>
+              <option value="png">PNG (Bild)</option>
+              <option value="jpg">JPG (Bild)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="format">Papierformat</label>
+            <select id="format">
+              <option value="A4" selected>A4</option>
+              <option value="A3">A3</option>
+              <option value="A5">A5</option>
+              <option value="Letter">Letter</option>
+              <option value="Legal">Legal</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="margin">Seitenrand</label>
+            <select id="margin">
+              <option value="auto" selected>Auto — passt sich dem HTML an</option>
+              <option value="0">Vollflächig (0 mm)</option>
+              <option value="10">Schmal (10 mm)</option>
+              <option value="12">Standard (12 mm)</option>
+              <option value="20">Großzügig (20 mm)</option>
+              <option value="25">Sehr großzügig (25 mm)</option>
+            </select>
+          </div>
+          <label class="toggle"><input type="checkbox" id="landscape" /> Querformat</label>
+          <div class="field">
+            <label for="scale">Zoom · <span id="scaleVal">100%</span></label>
+            <div class="range-row">
+              <input type="range" id="scale" min="50" max="150" step="5" value="100" />
+            </div>
           </div>
         </div>
+      </details>
 
-        <h3 style="margin-top:22px;">Inhalt vorbereiten</h3>
-        <label class="toggle"><input type="checkbox" id="expandAll" checked /> Alle Toggles/Akkordeons aufklappen</label>
-        <label class="toggle"><input type="checkbox" id="forceVisible" checked /> Animationen &amp; Transparenz entfernen</label>
-        <label class="toggle"><input type="checkbox" id="highlightLinks" /> Links hervorheben (unterstreichen)</label>
-
-        <h3 style="margin-top:22px;">Kopf- &amp; Fußzeile</h3>
-        <div class="field">
-          <label for="header">Kopfzeile (links)</label>
-          <input type="text" id="header" placeholder="z. B. AI Guide · Workshop 2026" />
+      <details open>
+        <summary>Inhalt vorbereiten</summary>
+        <div class="body">
+          <label class="toggle"><input type="checkbox" id="expandAll" checked /> Toggles &amp; Akkordeons aufklappen</label>
+          <label class="toggle"><input type="checkbox" id="forceVisible" checked /> Animationen &amp; Transparenz entfernen</label>
+          <label class="toggle"><input type="checkbox" id="highlightLinks" /> Links unterstreichen</label>
         </div>
-        <div class="field">
-          <label for="footer">Fußzeile (links)</label>
-          <input type="text" id="footer" placeholder="z. B. © 2026 · vertraulich" />
-        </div>
-        <label class="toggle"><input type="checkbox" id="pageNumbers" /> Seitenzahlen (rechts in Fußzeile)</label>
+      </details>
 
-        <div class="actions">
-          <button class="primary" id="go">PDF erstellen</button>
-          <button class="ghost" id="sample">Beispiel laden</button>
+      <details>
+        <summary>Kopf- &amp; Fußzeile</summary>
+        <div class="body">
+          <div class="field">
+            <label for="header">Kopfzeile</label>
+            <input type="text" id="header" placeholder="z. B. AI Guide · Workshop 2026" />
+          </div>
+          <div class="field">
+            <label for="footer">Fußzeile</label>
+            <input type="text" id="footer" placeholder="z. B. © 2026 · vertraulich" />
+          </div>
+          <label class="toggle"><input type="checkbox" id="pageNumbers" /> Seitenzahlen (rechts unten)</label>
+          <label class="toggle"><input type="checkbox" id="autoToc" /> Automatisches Inhaltsverzeichnis</label>
         </div>
+      </details>
 
+      <details>
+        <summary>Erweitert</summary>
+        <div class="body">
+          <label class="toggle"><input type="checkbox" id="darkMode" /> Dark Mode (Farben invertieren)</label>
+          <div class="field">
+            <label for="watermark">Wasserzeichen-Text</label>
+            <input type="text" id="watermark" placeholder="z. B. ENTWURF, VERTRAULICH" />
+          </div>
+          <div class="field">
+            <label for="customCss">Zusätzliches CSS (nur fürs PDF)</label>
+            <textarea id="customCss" class="text-input" placeholder="body { font-size: 11pt }&#10;h1 { color: red }"></textarea>
+          </div>
+          <div class="field">
+            <label for="password">Passwort-Schutz</label>
+            <input type="password" id="password" placeholder="Optional · verschlüsselt das PDF" />
+          </div>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button class="primary" id="go">PDF erstellen</button>
         <div class="status" id="status"></div>
       </div>
     </aside>
   </div>
 
   <div class="hint">
-    <b>Tipp:</b> Wenn du die Seitengröße im HTML selbst per
-    <code style="font-family:'JetBrains Mono',monospace;">@page { size: A4; margin: 0 }</code>
-    definierst, setz hier „Seitenrand“ auf 0 — das vermeidet doppelte Ränder.
-    Externe Bilder/Fonts müssen per URL erreichbar sein (Google Fonts, CDN), lokale Dateipfade funktionieren online nicht.
+    <b>Tipp:</b> Du kannst HTML- oder Markdown-Dateien einfach in den Editor <b>ziehen und ablegen</b>. Externe Bilder/Fonts müssen per URL erreichbar sein (Google Fonts, CDN) — lokale Dateipfade funktionieren online nicht.
   </div>
 </main>
 
@@ -247,61 +331,213 @@
   <span>Puppeteer · Vercel</span>
 </footer>
 
+<!-- ─── MARKED for Markdown preview ─── -->
+<script type="module">
+  import { marked } from 'https://cdn.jsdelivr.net/npm/marked@15/+esm';
+  window.__marked = marked;
+</script>
+
 <script>
   const $ = id => document.getElementById(id);
-  const statusEl = $('status');
-  const go = $('go');
+  const $$ = sel => document.querySelectorAll(sel);
 
+  // ─── State ───────────────────────────────────────────────
+  const state = {
+    activePane: 'html',  // html | markdown | url | templates | multi
+  };
+
+  // ─── Tabs ────────────────────────────────────────────────
+  $$('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const pane = tab.dataset.pane;
+      $$('.tab').forEach(t => t.classList.toggle('active', t === tab));
+      $$('.pane').forEach(p => p.classList.toggle('active', p.dataset.pane === pane));
+      state.activePane = pane;
+    });
+  });
+
+  // Sub-tabs (Code / Vorschau)
+  document.addEventListener('click', e => {
+    const sub = e.target.closest('.sub-tab');
+    if (!sub) return;
+    const view = sub.dataset.view;
+    const parent = sub.closest('.pane');
+    parent.querySelectorAll('.sub-tab').forEach(s => s.classList.toggle('active', s === sub));
+    parent.querySelectorAll('[data-view]').forEach(el => {
+      if (el === sub) return;
+      el.style.display = el.dataset.view === view ? '' : 'none';
+    });
+    if (view === 'preview-html') updateHtmlPreview();
+    if (view === 'preview-md')   updateMdPreview();
+  });
+
+  // ─── Live Previews ───────────────────────────────────────
+  const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+  function updateHtmlPreview() {
+    const iframe = $('htmlPreview');
+    iframe.srcdoc = $('htmlInput').value || '<p style="font-family:sans-serif;color:#999;padding:20px">Kein HTML eingegeben.</p>';
+  }
+  function updateMdPreview() {
+    const iframe = $('mdPreview');
+    const md = $('mdInput').value;
+    if (!window.__marked || !md) {
+      iframe.srcdoc = '<p style="font-family:sans-serif;color:#999;padding:20px">Kein Markdown eingegeben.</p>';
+      return;
+    }
+    const body = window.__marked.parse(md);
+    iframe.srcdoc = `<style>body{font-family:Inter,system-ui,sans-serif;padding:20px;color:#11162A;background:#FAF8F3;line-height:1.6}h1,h2,h3{font-family:Fraunces,serif}code{background:#F1ECDF;padding:1px 4px;border-radius:3px}pre{background:#11162A;color:#F6F2E7;padding:12px;border-radius:6px;overflow:auto}blockquote{border-left:3px solid #E8552B;margin:0;padding-left:14px;color:#5A6070}</style>${body}`;
+  }
+  $('htmlInput').addEventListener('input', debounce(updateHtmlPreview, 350));
+  $('mdInput').addEventListener('input', debounce(updateMdPreview, 350));
+
+  // ─── Drag & Drop ─────────────────────────────────────────
+  ['dragover', 'dragenter'].forEach(ev => window.addEventListener(ev, e => {
+    e.preventDefault(); document.body.classList.add('drop-active');
+  }));
+  ['dragleave', 'drop'].forEach(ev => window.addEventListener(ev, e => {
+    if (ev === 'dragleave' && e.relatedTarget) return;
+    document.body.classList.remove('drop-active');
+  }));
+  window.addEventListener('drop', async e => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const text = await file.text();
+    if (file.name.match(/\.(md|markdown)$/i)) {
+      $('mdInput').value = text;
+      $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.pane === 'markdown'));
+      $$('.pane').forEach(p => p.classList.toggle('active', p.dataset.pane === 'markdown'));
+      state.activePane = 'markdown';
+      setStatus(`Markdown-Datei "${file.name}" geladen.`, 'success');
+    } else {
+      $('htmlInput').value = text;
+      $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.pane === 'html'));
+      $$('.pane').forEach(p => p.classList.toggle('active', p.dataset.pane === 'html'));
+      state.activePane = 'html';
+      setStatus(`Datei "${file.name}" geladen.`, 'success');
+    }
+  });
+
+  // ─── Templates ───────────────────────────────────────────
+  fetch('/templates/manifest.json').then(r => r.json()).then(({ templates }) => {
+    const grid = $('templatesGrid');
+    grid.innerHTML = templates.map(t => `
+      <button class="tpl-card" data-file="${t.file}">
+        <span class="tpl-tag">${t.tag}</span>
+        <h4>${t.name}</h4>
+        <p>${t.description}</p>
+      </button>
+    `).join('');
+    grid.querySelectorAll('.tpl-card').forEach(card => {
+      card.addEventListener('click', async () => {
+        const file = card.dataset.file;
+        try {
+          const res = await fetch(`/templates/${file}`);
+          if (!res.ok) throw new Error('Template nicht ladbar');
+          const html = await res.text();
+          $('htmlInput').value = html;
+          $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.pane === 'html'));
+          $$('.pane').forEach(p => p.classList.toggle('active', p.dataset.pane === 'html'));
+          state.activePane = 'html';
+          setStatus('Vorlage geladen — bei Bedarf anpassen, dann „PDF erstellen“.', 'info');
+        } catch (e) { setStatus(e.message, 'error'); }
+      });
+    });
+  }).catch(() => {});
+
+  // ─── Multi-snippet ───────────────────────────────────────
+  let snippetCount = 0;
+  function addSnippet(content = '') {
+    snippetCount++;
+    const wrap = document.createElement('div');
+    wrap.className = 'snippet';
+    wrap.innerHTML = `
+      <span class="snippet-label">Seite ${snippetCount}</span>
+      <button class="snippet-remove" type="button">×</button>
+      <textarea spellcheck="false" placeholder="HTML für diese Seite ..."></textarea>
+    `;
+    wrap.querySelector('textarea').value = content;
+    wrap.querySelector('.snippet-remove').addEventListener('click', () => {
+      wrap.remove();
+      relabelSnippets();
+    });
+    $('snippets').appendChild(wrap);
+  }
+  function relabelSnippets() {
+    let n = 0;
+    $('snippets').querySelectorAll('.snippet').forEach(s => {
+      n++;
+      s.querySelector('.snippet-label').textContent = `Seite ${n}`;
+    });
+    snippetCount = n;
+  }
+  $('addSnippet').addEventListener('click', () => addSnippet());
+  addSnippet(); addSnippet();  // start with 2
+
+  // ─── Zoom slider live label ──────────────────────────────
+  $('scale').addEventListener('input', () => { $('scaleVal').textContent = $('scale').value + '%'; });
+
+  // ─── Status helper ───────────────────────────────────────
+  const statusEl = $('status');
   function setStatus(msg, kind = 'info') {
     statusEl.textContent = msg;
     statusEl.className = `status visible ${kind}`;
   }
-  function clearStatus() { statusEl.className = 'status'; }
 
-  const scaleEl = $('scale');
-  const scaleVal = $('scaleVal');
-  scaleEl.addEventListener('input', () => { scaleVal.textContent = scaleEl.value + '%'; });
+  // ─── PDF GENERATION ──────────────────────────────────────
+  $('go').addEventListener('click', async () => {
+    const go = $('go');
 
-  $('sample').addEventListener('click', async () => {
-    try {
-      const r = await fetch('/sample.html');
-      if (!r.ok) throw new Error('Beispiel konnte nicht geladen werden.');
-      $('html').value = await r.text();
-      setStatus('Beispiel geladen — jetzt auf „PDF erstellen“ klicken.', 'info');
-    } catch (e) {
-      setStatus(e.message, 'error');
+    // Build payload based on active pane
+    const payload = {
+      inputType: state.activePane,
+      filename: $('filename').value || 'dokument',
+      output: $('output').value,
+      format: $('format').value,
+      margin: $('margin').value,
+      landscape: $('landscape').checked,
+      scale: Number($('scale').value) / 100,
+      expandAll: $('expandAll').checked,
+      forceVisible: $('forceVisible').checked,
+      highlightLinks: $('highlightLinks').checked,
+      header: $('header').value,
+      footer: $('footer').value,
+      pageNumbers: $('pageNumbers').checked,
+      autoToc: $('autoToc').checked,
+      darkMode: $('darkMode').checked,
+      watermark: $('watermark').value,
+      customCss: $('customCss').value,
+      password: $('password').value,
+    };
+
+    if (state.activePane === 'html')      payload.html = $('htmlInput').value.trim();
+    else if (state.activePane === 'markdown') payload.markdown = $('mdInput').value.trim();
+    else if (state.activePane === 'url')      payload.url = $('urlInput').value.trim();
+    else if (state.activePane === 'templates') payload.html = $('htmlInput').value.trim(); // template loaded into html
+    else if (state.activePane === 'multi') {
+      payload.htmls = Array.from($('snippets').querySelectorAll('textarea'))
+        .map(t => t.value.trim()).filter(Boolean);
     }
-  });
 
-  go.addEventListener('click', async () => {
-    const html = $('html').value.trim();
-    if (!html) { setStatus('Bitte HTML einfügen.', 'error'); return; }
+    // Validate
+    const hasInput =
+      payload.html || payload.markdown || payload.url ||
+      (payload.htmls && payload.htmls.length > 0);
+    if (!hasInput) { setStatus('Bitte Eingabe hinzufügen.', 'error'); return; }
 
     go.disabled = true;
-    setStatus('Rendere PDF … (Kaltstart kann 5–10 s dauern)', 'info');
+    setStatus('Rendere ... (Kaltstart kann 5–10 s dauern)', 'info');
 
     try {
       const res = await fetch('/api/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          html,
-          format: $('format').value,
-          margin: $('margin').value,
-          landscape: $('landscape').checked,
-          filename: $('filename').value || 'dokument.pdf',
-          expandAll: $('expandAll').checked,
-          forceVisible: $('forceVisible').checked,
-          highlightLinks: $('highlightLinks').checked,
-          header: $('header').value,
-          footer: $('footer').value,
-          pageNumbers: $('pageNumbers').checked,
-          scale: Number(scaleEl.value) / 100,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Fehler beim Rendern.' }));
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
         throw new Error(err.error || `HTTP ${res.status}`);
       }
 
@@ -309,13 +545,14 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = $('filename').value || 'dokument.pdf';
+      const ext = payload.output === 'png' ? 'png' : payload.output === 'jpg' ? 'jpg' : 'pdf';
+      a.download = (payload.filename || 'dokument').replace(/\.\w+$/, '') + '.' + ext;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
 
-      setStatus('PDF erstellt und heruntergeladen.', 'success');
+      setStatus('Erstellt und heruntergeladen.', 'success');
     } catch (e) {
       setStatus(`Fehler: ${e.message}`, 'error');
     } finally {

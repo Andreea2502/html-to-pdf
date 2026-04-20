@@ -1,0 +1,53 @@
+{
+  "templates": [
+    {
+      "id": "cv",
+      "name": "Lebenslauf",
+      "description": "Editorial CV mit zwei Spalten und Akzentfarbe.",
+      "file": "cv.html",
+      "tag": "Karriere"
+    },
+    {
+      "id": "cover-letter",
+      "name": "Anschreiben",
+      "description": "Klassisches Bewerbungsschreiben mit Briefkopf.",
+      "file": "cover-letter.html",
+      "tag": "Karriere"
+    },
+    {
+      "id": "invoice",
+      "name": "Rechnung",
+      "description": "Saubere Rechnungsvorlage mit USt. und Bankdaten.",
+      "file": "invoice.html",
+      "tag": "Business"
+    },
+    {
+      "id": "report",
+      "name": "Quartalsbericht",
+      "description": "One-Pager mit KPI-Reihe und Erkenntnissen.",
+      "file": "report.html",
+      "tag": "Business"
+    },
+    {
+      "id": "whitepaper",
+      "name": "Whitepaper",
+      "description": "3-seitiger Editorial-Whitepaper mit Cover & Inhaltsverzeichnis.",
+      "file": "whitepaper.html",
+      "tag": "Editorial"
+    },
+    {
+      "id": "certificate",
+      "name": "Zertifikat",
+      "description": "Querformat-Zertifikat mit Eckornamenten und Goldakzent.",
+      "file": "certificate.html",
+      "tag": "Editorial"
+    },
+    {
+      "id": "invitation",
+      "name": "Einladung",
+      "description": "Dunkles Einladungs-Layout mit Goldakzenten.",
+      "file": "invitation.html",
+      "tag": "Editorial"
+    }
+  ]
+}
