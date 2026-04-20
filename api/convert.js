@@ -252,11 +252,23 @@ async function prepareForPdf(page, opts) {
 
       if (darkMode) {
         injectStyle(`
-          html { filter: invert(1) hue-rotate(180deg) !important; background: #FAF8F3 !important; }
-          img, picture, video, svg, iframe, canvas,
-          [style*="background-image"], [style*="background:url"], [style*="background: url"] {
-            filter: invert(1) hue-rotate(180deg) !important;
-          }
+          html, body { background: #0B0F19 !important; color: #E6E1D2 !important; }
+          *, *::before, *::after { background-color: transparent !important; border-color: #2A3050 !important; color: #E6E1D2 !important; }
+          h1, h2, h3, h4, h5, h6 { color: #FFF6E6 !important; }
+          a, a * { color: #F4C95D !important; }
+          strong, b { color: #FFF6E6 !important; }
+          em, i { color: #E6E1D2 !important; }
+          code, pre { background: #1B2238 !important; color: #F4C95D !important; }
+          blockquote { border-left-color: #E8552B !important; }
+          hr { border-color: #2A3050 !important; }
+          table th { background: #1B2238 !important; }
+          table th, table td { border-color: #2A3050 !important; }
+          input, textarea, select, button { background: #1B2238 !important; color: #E6E1D2 !important; }
+          /* keep media as-is */
+          img, video, svg, picture, canvas { background: transparent !important; opacity: 0.95; }
+          /* override backgrounds set via inline style */
+          [style*="background:#fff"], [style*="background: #fff"],
+          [style*="background:white"], [style*="background: white"] { background: #11162A !important; }
         `);
       }
 
