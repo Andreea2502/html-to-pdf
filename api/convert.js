@@ -1,5 +1,8 @@
-import chromium from '@sparticuz/chromium';
+import chromium from '@sparticuz/chromium-min';
 import puppeteer from 'puppeteer-core';
+
+const CHROMIUM_PACK =
+  'https://github.com/Sparticuz/chromium/releases/download/v147.0.1/chromium-v147.0.1-pack.x64.tar';
 
 export const config = {
   api: {
@@ -7,6 +10,14 @@ export const config = {
   },
   maxDuration: 60,
 };
+
+let cachedExecutablePath;
+
+async function getExecutablePath() {
+  if (cachedExecutablePath) return cachedExecutablePath;
+  cachedExecutablePath = await chromium.executablePath(CHROMIUM_PACK);
+  return cachedExecutablePath;
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -39,7 +50,7 @@ export default async function handler(req, res) {
       executablePath: isLocal
         ? process.env.PUPPETEER_EXECUTABLE_PATH ||
           '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-        : await chromium.executablePath(),
+        : await getExecutablePath(),
       headless: true,
       defaultViewport: { width: 1240, height: 1754, deviceScaleFactor: 2 },
     });
