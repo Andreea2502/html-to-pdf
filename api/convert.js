@@ -669,7 +669,7 @@ function escapeHtml(str) {
 function renderCoverPage({ title, subtitle, author, date, description }) {
   const esc = escapeHtml;
   return `
-<section data-cover style="width:100%;min-height:100vh;padding:50mm 30mm 40mm;page-break-after:always;break-after:page;background:#FAF8F3;color:#11162A;font-family:'Inter',system-ui,sans-serif;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased">
+<section data-cover style="width:100%;height:267mm;padding:45mm 30mm 35mm;page-break-after:always;break-after:page;background:#FAF8F3;color:#11162A;font-family:'Inter',system-ui,sans-serif;display:flex;flex-direction:column;box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased">
   <div style="position:absolute;top:0;left:0;right:0;height:6px;background:#E8552B"></div>
   <div style="flex-shrink:0">
     <div style="display:inline-flex;align-items:center;gap:10px;background:#F1ECDF;padding:5px 14px;border-radius:999px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#11162A;font-weight:600;margin-bottom:12mm">
@@ -678,9 +678,9 @@ function renderCoverPage({ title, subtitle, author, date, description }) {
     </div>
     ${author ? `<div style="font-size:11pt;letter-spacing:0.22em;text-transform:uppercase;color:#5A6070;font-weight:600">${esc(author)}</div>` : ''}
   </div>
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:20mm 0">
-    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:72pt;line-height:1.02;letter-spacing:-0.015em;margin:0 0 10mm;font-weight:700;max-width:170mm">${esc(title)}</h1>
-    ${subtitle ? `<p style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:22pt;line-height:1.35;color:#5A6070;margin:0;max-width:150mm;font-weight:400">${esc(subtitle)}</p>` : ''}
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:15mm 0;min-height:0">
+    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:64pt;line-height:1.02;letter-spacing:-0.015em;margin:0 0 10mm;font-weight:700;word-break:break-word">${esc(title)}</h1>
+    ${subtitle ? `<p style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:20pt;line-height:1.35;color:#5A6070;margin:0;font-weight:400">${esc(subtitle)}</p>` : ''}
     ${description ? `<p style="font-family:'Inter',sans-serif;font-size:13pt;line-height:1.55;color:#242A40;margin:14mm 0 0;max-width:140mm">${esc(description)}</p>` : ''}
   </div>
   <div style="display:flex;justify-content:space-between;align-items:end;font-size:10pt;color:#5A6070;letter-spacing:0.2em;text-transform:uppercase;padding-top:10mm;border-top:1px solid #E7E1D4;flex-shrink:0">
