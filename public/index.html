@@ -351,6 +351,22 @@
           <div class="field"><label for="coverAuthor">Autor / Organisation</label><input type="text" id="coverAuthor" placeholder="z. B. Atlas Studio" /></div>
           <div class="field"><label for="coverDate">Datum</label><input type="text" id="coverDate" placeholder="z. B. April 2026" /></div>
           <div class="field"><label for="coverDescription">Beschreibung (optional)</label><textarea id="coverDescription" class="text-input" placeholder="Kurzer Teaser-Text ..."></textarea></div>
+          <div class="field">
+            <label for="coverImageFile">Titelbild (optional)</label>
+            <input type="file" id="coverImageFile" accept="image/*" style="background:#FCFAF4;border:1px solid var(--rule);border-radius:5px;padding:8px 10px;font-size:12px;" />
+            <div id="coverImagePreview" style="display:none;margin-top:6px;padding:6px;background:#FCFAF4;border:1px solid var(--rule);border-radius:5px;text-align:center;">
+              <img id="coverImageImg" style="max-height:70px;max-width:100%;border-radius:3px;" alt="" />
+              <button type="button" id="coverImageRemove" style="display:block;margin:4px auto 0;background:transparent;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;">entfernen</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="coverImageStyle">Bild-Stil</label>
+            <select id="coverImageStyle">
+              <option value="background" selected>Hintergrund (Vollbild mit Overlay)</option>
+              <option value="top">Hero oben (Bild oberer Bereich)</option>
+              <option value="right">Nebenstehend (Split links/rechts)</option>
+            </select>
+          </div>
         </div>
       </details>
 
@@ -594,6 +610,27 @@
     $('logoPreview').style.display = 'none';
   });
 
+  // ─── Cover image upload ──────────────────────────────────
+  state.coverImageDataUrl = '';
+  $('coverImageFile').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      // Cover images allow larger resolution for crisp full-bleed rendering
+      const dataUrl = await resizeImageToDataUrl(file, 1600);
+      state.coverImageDataUrl = dataUrl;
+      $('coverImageImg').src = dataUrl;
+      $('coverImagePreview').style.display = 'block';
+    } catch (err) {
+      setStatus('Bild konnte nicht geladen werden: ' + err.message, 'error');
+    }
+  });
+  $('coverImageRemove').addEventListener('click', () => {
+    state.coverImageDataUrl = '';
+    $('coverImageFile').value = '';
+    $('coverImagePreview').style.display = 'none';
+  });
+
   // ─── Preview Modal ───────────────────────────────────────
   let currentBlobUrl = null;
   let currentFilename = '';
@@ -675,6 +712,8 @@
       coverAuthor: $('coverAuthor').value,
       coverDate: $('coverDate').value,
       coverDescription: $('coverDescription').value,
+      coverImage: state.coverImageDataUrl || '',
+      coverImageStyle: $('coverImageStyle').value,
     };
 
     if (state.activePane === 'html')      payload.html = $('htmlInput').value.trim();

@@ -423,6 +423,8 @@ export default async function handler(req, res) {
     coverAuthor = '',
     coverDate = '',
     coverDescription = '',
+    coverImage = '',
+    coverImageStyle = 'background', // background | top | right
   } = req.body ?? {};
 
   const safeScale = Math.min(1.3, Math.max(0.1, Number(scale) || 1));
@@ -545,6 +547,8 @@ export default async function handler(req, res) {
         author: (coverAuthor || '').trim(),
         date: (coverDate || '').trim(),
         description: (coverDescription || '').trim(),
+        image: coverImage || '',
+        imageStyle: coverImageStyle || 'background',
       });
       await page.evaluate((h) => {
         document.body.insertAdjacentHTML('afterbegin', h);
@@ -574,7 +578,8 @@ export default async function handler(req, res) {
       const ext = outputType === 'jpg' ? 'jpg' : 'png';
       const name = safeName.endsWith(`.${ext}`) ? safeName : `${safeName.replace(/\.\w+$/, '')}.${ext}`;
       res.setHeader('Content-Type', `image/${outputType === 'jpg' ? 'jpeg' : 'png'}`);
-      res.setHeader('Content-Disposition', `attachment; filename="${name}"`);
+      // Use "inline" so iframe preview works; browser honors <a download> for explicit downloads
+      res.setHeader('Content-Disposition', `inline; filename="${name}"`);
       res.setHeader('Content-Length', buffer.length);
       return res.status(200).end(Buffer.from(buffer));
     }
@@ -627,7 +632,8 @@ export default async function handler(req, res) {
     const name = safeName.endsWith('.pdf') ? safeName : `${safeName.replace(/\.\w+$/, '')}.pdf`;
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${name}"`);
+    // Use "inline" so iframe preview works; browser honors <a download> for explicit downloads
+    res.setHeader('Content-Disposition', `inline; filename="${name}"`);
     res.setHeader('Content-Length', pdfBuffer.length);
     return res.status(200).end(pdfBuffer);
   } catch (error) {
@@ -666,14 +672,93 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-function renderCoverPage({ title, subtitle, author, date, description }) {
+function renderCoverPage({ title, subtitle, author, date, description, image, imageStyle }) {
   const esc = escapeHtml;
-  // Auto-scale title font based on length so long titles don't overflow
   const titleLen = (title || '').length;
   const titleFont =
     titleLen > 40 ? 36 :
     titleLen > 25 ? 46 :
     titleLen > 15 ? 56 : 64;
+
+  const hasImage = Boolean(image && image.length > 50);
+
+  // ───── Variant: Background image (full-bleed with dark overlay) ─────
+  if (hasImage && imageStyle === 'background') {
+    const bg = `linear-gradient(135deg, rgba(11,15,25,0.78), rgba(11,15,25,0.55)), url('${image}')`;
+    return `
+<section data-cover style="width:100%;height:267mm;padding:35mm 28mm;page-break-after:always;break-after:page;background-image:${bg};background-size:cover;background-position:center;color:#F6F2E7;font-family:'Inter',system-ui,sans-serif;box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased">
+  <div style="position:absolute;top:0;left:0;right:0;height:6px;background:#E8552B"></div>
+  <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(246,242,231,0.12);padding:5px 14px;border-radius:999px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#FFF8EB;font-weight:600;backdrop-filter:blur(4px)">
+    <span style="width:8px;height:8px;background:#E8552B;border-radius:50%;display:inline-block"></span>
+    <span>Dokument</span>
+  </div>
+  ${author ? `<div style="font-size:11pt;letter-spacing:0.22em;text-transform:uppercase;color:#BDBAAE;font-weight:600;margin-top:10mm">${esc(author)}</div>` : ''}
+
+  <div style="margin-top:50mm">
+    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:${titleFont}pt;line-height:1.02;letter-spacing:-0.015em;margin:0 0 8mm;font-weight:700;color:#FFF8EB;hyphens:auto;-webkit-hyphens:auto">${esc(title)}</h1>
+    ${subtitle ? `<p style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:20pt;line-height:1.35;color:#D7D3C5;margin:0;font-weight:400">${esc(subtitle)}</p>` : ''}
+    ${description ? `<p style="font-family:'Inter',sans-serif;font-size:13pt;line-height:1.55;color:#D7D3C5;margin:14mm 0 0;max-width:140mm">${esc(description)}</p>` : ''}
+  </div>
+
+  <div style="position:absolute;bottom:28mm;left:28mm;right:28mm;display:flex;justify-content:space-between;align-items:end;font-size:10pt;color:#BDBAAE;letter-spacing:0.2em;text-transform:uppercase;padding-top:8mm;border-top:1px solid rgba(246,242,231,0.2)">
+    <span>${esc(date || '')}</span>
+    <span style="color:#E8552B;font-family:'Fraunces',serif;font-size:16pt;letter-spacing:0">◆</span>
+  </div>
+</section>`;
+  }
+
+  // ───── Variant: Hero image on top ─────
+  if (hasImage && imageStyle === 'top') {
+    return `
+<section data-cover style="width:100%;height:267mm;page-break-after:always;break-after:page;background:#FAF8F3;color:#11162A;font-family:'Inter',system-ui,sans-serif;box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased">
+  <div style="height:115mm;background-image:url('${image}');background-size:cover;background-position:center;position:relative">
+    <div style="position:absolute;top:0;left:0;right:0;height:6px;background:#E8552B"></div>
+  </div>
+  <div style="padding:14mm 28mm 0">
+    <div style="display:inline-flex;align-items:center;gap:10px;background:#F1ECDF;padding:5px 14px;border-radius:999px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#11162A;font-weight:600">
+      <span style="width:8px;height:8px;background:#E8552B;border-radius:50%;display:inline-block"></span>
+      <span>Dokument</span>
+    </div>
+    ${author ? `<div style="font-size:11pt;letter-spacing:0.22em;text-transform:uppercase;color:#5A6070;font-weight:600;margin-top:8mm">${esc(author)}</div>` : ''}
+    <div style="margin-top:12mm">
+      <h1 style="font-family:'Fraunces',Georgia,serif;font-size:${Math.min(56, titleFont)}pt;line-height:1.02;letter-spacing:-0.015em;margin:0 0 6mm;font-weight:700;hyphens:auto;-webkit-hyphens:auto">${esc(title)}</h1>
+      ${subtitle ? `<p style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:18pt;line-height:1.35;color:#5A6070;margin:0;font-weight:400">${esc(subtitle)}</p>` : ''}
+      ${description ? `<p style="font-family:'Inter',sans-serif;font-size:12pt;line-height:1.55;color:#242A40;margin:8mm 0 0;max-width:140mm">${esc(description)}</p>` : ''}
+    </div>
+  </div>
+  <div style="position:absolute;bottom:22mm;left:28mm;right:28mm;display:flex;justify-content:space-between;align-items:end;font-size:10pt;color:#5A6070;letter-spacing:0.2em;text-transform:uppercase;padding-top:6mm;border-top:1px solid #E7E1D4">
+    <span>${esc(date || '')}</span>
+    <span style="color:#E8552B;font-family:'Fraunces',serif;font-size:16pt;letter-spacing:0">◆</span>
+  </div>
+</section>`;
+  }
+
+  // ───── Variant: Image on right (split 50/50) ─────
+  if (hasImage && imageStyle === 'right') {
+    return `
+<section data-cover style="width:100%;height:267mm;page-break-after:always;break-after:page;background:#FAF8F3;color:#11162A;font-family:'Inter',system-ui,sans-serif;box-sizing:border-box;position:relative;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;-webkit-font-smoothing:antialiased">
+  <div style="padding:35mm 22mm 28mm 28mm;position:relative;display:flex;flex-direction:column">
+    <div style="position:absolute;top:0;left:0;right:0;height:6px;background:#E8552B"></div>
+    <div style="display:inline-flex;align-items:center;gap:10px;background:#F1ECDF;padding:5px 14px;border-radius:999px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#11162A;font-weight:600;align-self:flex-start">
+      <span style="width:8px;height:8px;background:#E8552B;border-radius:50%;display:inline-block"></span>
+      <span>Dokument</span>
+    </div>
+    ${author ? `<div style="font-size:11pt;letter-spacing:0.22em;text-transform:uppercase;color:#5A6070;font-weight:600;margin-top:8mm">${esc(author)}</div>` : ''}
+    <div style="margin-top:auto;margin-bottom:auto;padding:20mm 0">
+      <h1 style="font-family:'Fraunces',Georgia,serif;font-size:${Math.min(48, titleFont)}pt;line-height:1.02;letter-spacing:-0.015em;margin:0 0 6mm;font-weight:700;hyphens:auto;-webkit-hyphens:auto">${esc(title)}</h1>
+      ${subtitle ? `<p style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:16pt;line-height:1.35;color:#5A6070;margin:0;font-weight:400">${esc(subtitle)}</p>` : ''}
+      ${description ? `<p style="font-family:'Inter',sans-serif;font-size:11.5pt;line-height:1.55;color:#242A40;margin:8mm 0 0">${esc(description)}</p>` : ''}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:end;font-size:10pt;color:#5A6070;letter-spacing:0.2em;text-transform:uppercase;padding-top:6mm;border-top:1px solid #E7E1D4">
+      <span>${esc(date || '')}</span>
+      <span style="color:#E8552B;font-family:'Fraunces',serif;font-size:16pt;letter-spacing:0">◆</span>
+    </div>
+  </div>
+  <div style="background-image:url('${image}');background-size:cover;background-position:center"></div>
+</section>`;
+  }
+
+  // ───── Default: no image (classic) ─────
   return `
 <section data-cover style="width:100%;height:267mm;padding:35mm 28mm;page-break-after:always;break-after:page;background:#FAF8F3;color:#11162A;font-family:'Inter',system-ui,sans-serif;box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased">
   <div style="position:absolute;top:0;left:0;right:0;height:6px;background:#E8552B"></div>
