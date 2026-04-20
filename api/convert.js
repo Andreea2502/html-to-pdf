@@ -382,7 +382,7 @@ export default async function handler(req, res) {
     password = '',
   } = req.body ?? {};
 
-  const safeScale = Math.min(2, Math.max(0.5, Number(scale) || 1));
+  const safeScale = Math.min(1.3, Math.max(0.1, Number(scale) || 1));
   const outputType = ['pdf', 'png', 'jpg'].includes(output) ? output : 'pdf';
 
   let browser;
@@ -461,6 +461,15 @@ export default async function handler(req, res) {
       autoToc,
     });
 
+    // Apply zoom via CSS so layout reflows (more content per row)
+    // instead of Puppeteer's scale which keeps layout fixed and adds margins.
+    if (safeScale !== 1) {
+      await page.evaluate((z) => {
+        document.documentElement.style.zoom = z;
+      }, safeScale);
+      await new Promise((r) => setTimeout(r, 150));
+    }
+
     const safeName =
       String(filename).replace(/[^\w.\-]/g, '_').slice(0, 80) || 'document';
 
@@ -505,7 +514,6 @@ export default async function handler(req, res) {
       format,
       landscape: Boolean(landscape),
       printBackground: true,
-      scale: safeScale,
       preferCSSPageSize: !useExplicitLayout,
       displayHeaderFooter: hasHeader || hasFooter,
       headerTemplate,
