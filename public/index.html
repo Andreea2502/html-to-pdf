@@ -142,6 +142,25 @@
   /* ─── PANE VISIBILITY ─── */
   .pane { display:none; }
   .pane.active { display:block; }
+
+  /* ─── MODAL ─── */
+  .modal { position:fixed; inset:0; background:rgba(10,12,22,0.6); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; backdrop-filter:blur(4px); }
+  .modal.visible { display:flex; }
+  .modal-inner { width:100%; max-width:1100px; height:90vh; max-height:900px; background:var(--paper); border-radius:10px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+  .modal-header { padding:16px 22px; border-bottom:1px solid var(--rule); display:flex; justify-content:space-between; align-items:center; background:var(--paper-2); }
+  .modal-header h3 { font-family:'Fraunces',serif; font-size:22pt; margin:0; font-weight:700; letter-spacing:-0.01em; }
+  .modal-header h3 em { font-style:italic; color:var(--accent); }
+  .close-btn { background:transparent; border:none; font-size:26px; color:var(--muted); cursor:pointer; padding:0; width:36px; height:36px; border-radius:6px; line-height:1; }
+  .close-btn:hover { color:var(--ink); background:var(--chip-bg); }
+  .modal-body { flex:1; overflow:hidden; background:#E7E1D4; display:flex; align-items:center; justify-content:center; }
+  .modal-body iframe { width:100%; height:100%; border:none; background:#fff; }
+  .modal-body img { max-width:100%; max-height:100%; object-fit:contain; background:#fff; box-shadow:0 4px 20px rgba(0,0,0,0.15); }
+  .modal-actions { padding:14px 22px; border-top:1px solid var(--rule); display:flex; gap:10px; justify-content:flex-end; background:var(--paper-2); }
+  .modal-actions button { padding:11px 22px; font-size:13px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; }
+  .btn-ghost { background:transparent; color:var(--ink); border:1px solid var(--rule); }
+  .btn-ghost:hover { border-color:var(--ink); }
+  .btn-primary { background:var(--ink); color:var(--paper); border:none; }
+  .btn-primary:hover { background:var(--accent); }
 </style>
 </head>
 <body>
@@ -297,6 +316,45 @@
       </details>
 
       <details>
+        <summary>Branding & Titelseite</summary>
+        <div class="body">
+          <div class="field">
+            <label for="logoFile">Logo-Bild (PNG, JPG, SVG)</label>
+            <input type="file" id="logoFile" accept="image/*" style="background:#FCFAF4;border:1px solid var(--rule);border-radius:5px;padding:8px 10px;font-size:12px;" />
+            <div id="logoPreview" style="display:none;margin-top:6px;padding:8px;background:#FCFAF4;border:1px solid var(--rule);border-radius:5px;text-align:center;">
+              <img id="logoImg" style="max-height:50px;max-width:100%;" alt="" />
+              <button type="button" id="logoRemove" style="display:block;margin:5px auto 0;background:transparent;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;">entfernen</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="logoPosition">Logo-Position</label>
+            <select id="logoPosition">
+              <option value="top-right" selected>Oben rechts</option>
+              <option value="top-left">Oben links</option>
+              <option value="top-center">Oben mittig</option>
+              <option value="bottom-right">Unten rechts</option>
+              <option value="bottom-left">Unten links</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="logoWidth">Logo-Breite · <span id="logoWidthVal">30 mm</span></label>
+            <div class="range-row">
+              <input type="range" id="logoWidth" min="15" max="60" step="5" value="30" />
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--rule);margin:4px 0;">
+
+          <label class="toggle"><input type="checkbox" id="addCover" /> Titelseite hinzufügen</label>
+          <div class="field"><label for="coverTitle">Titel</label><input type="text" id="coverTitle" placeholder="z. B. Jahresbericht 2026" /></div>
+          <div class="field"><label for="coverSubtitle">Untertitel</label><input type="text" id="coverSubtitle" placeholder="z. B. Wachstum mit Substanz" /></div>
+          <div class="field"><label for="coverAuthor">Autor / Organisation</label><input type="text" id="coverAuthor" placeholder="z. B. Atlas Studio" /></div>
+          <div class="field"><label for="coverDate">Datum</label><input type="text" id="coverDate" placeholder="z. B. April 2026" /></div>
+          <div class="field"><label for="coverDescription">Beschreibung (optional)</label><textarea id="coverDescription" class="text-input" placeholder="Kurzer Teaser-Text ..."></textarea></div>
+        </div>
+      </details>
+
+      <details>
         <summary>Erweitert</summary>
         <div class="body">
           <label class="toggle"><input type="checkbox" id="darkMode" /> Dark Mode (Farben invertieren)</label>
@@ -331,6 +389,24 @@
   <span>Open Source · MIT</span>
   <span>Puppeteer · Vercel</span>
 </footer>
+
+<!-- ─── Preview Modal ─── -->
+<div class="modal" id="previewModal" aria-hidden="true">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <h3>Deine <em>Vorschau.</em></h3>
+      <button class="close-btn" id="closeModalX" aria-label="Schließen">×</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="previewFrame" style="display:none;"></iframe>
+      <img id="previewImg" style="display:none;" alt="Vorschau" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="closeModalBtn">Zurück</button>
+      <button class="btn-primary" id="downloadBtn">Herunterladen</button>
+    </div>
+  </div>
+</div>
 
 <!-- ─── MARKED for Markdown preview ─── -->
 <script type="module">
@@ -478,6 +554,86 @@
 
   // ─── Zoom slider live label ──────────────────────────────
   $('scale').addEventListener('input', () => { $('scaleVal').textContent = $('scale').value + '%'; });
+  $('logoWidth').addEventListener('input', () => { $('logoWidthVal').textContent = $('logoWidth').value + ' mm'; });
+
+  // ─── Logo upload ─────────────────────────────────────────
+  state.logoDataUrl = '';
+  async function resizeImageToDataUrl(file, maxWidth = 800) {
+    if (file.type === 'image/svg+xml' || file.size < 30 * 1024) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+    }
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, maxWidth / bmp.width);
+    const w = Math.round(bmp.width * scale);
+    const h = Math.round(bmp.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(bmp, 0, 0, w, h);
+    return canvas.toDataURL('image/png');
+  }
+  $('logoFile').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const dataUrl = await resizeImageToDataUrl(file, 800);
+      state.logoDataUrl = dataUrl;
+      $('logoImg').src = dataUrl;
+      $('logoPreview').style.display = 'block';
+    } catch (err) {
+      setStatus('Logo konnte nicht geladen werden: ' + err.message, 'error');
+    }
+  });
+  $('logoRemove').addEventListener('click', () => {
+    state.logoDataUrl = '';
+    $('logoFile').value = '';
+    $('logoPreview').style.display = 'none';
+  });
+
+  // ─── Preview Modal ───────────────────────────────────────
+  let currentBlobUrl = null;
+  let currentFilename = '';
+  function showPreview(blob, filename, isImage) {
+    if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+    currentBlobUrl = URL.createObjectURL(blob);
+    currentFilename = filename;
+    const iframe = $('previewFrame');
+    const img = $('previewImg');
+    if (isImage) {
+      img.src = currentBlobUrl;
+      img.style.display = 'block';
+      iframe.style.display = 'none';
+    } else {
+      iframe.src = currentBlobUrl + '#view=FitH';
+      iframe.style.display = 'block';
+      img.style.display = 'none';
+    }
+    $('previewModal').classList.add('visible');
+  }
+  function closePreview() {
+    $('previewModal').classList.remove('visible');
+    $('previewFrame').src = 'about:blank';
+    $('previewImg').src = '';
+    if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+  }
+  $('closeModalX').addEventListener('click', closePreview);
+  $('closeModalBtn').addEventListener('click', closePreview);
+  $('downloadBtn').addEventListener('click', () => {
+    if (!currentBlobUrl) return;
+    const a = document.createElement('a');
+    a.href = currentBlobUrl;
+    a.download = currentFilename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('previewModal').classList.contains('visible')) closePreview();
+  });
 
   // ─── Status helper ───────────────────────────────────────
   const statusEl = $('status');
@@ -510,6 +666,15 @@
       watermark: $('watermark').value,
       customCss: $('customCss').value,
       password: $('password').value,
+      logo: state.logoDataUrl || '',
+      logoPosition: $('logoPosition').value,
+      logoWidth: Number($('logoWidth').value),
+      addCover: $('addCover').checked,
+      coverTitle: $('coverTitle').value,
+      coverSubtitle: $('coverSubtitle').value,
+      coverAuthor: $('coverAuthor').value,
+      coverDate: $('coverDate').value,
+      coverDescription: $('coverDescription').value,
     };
 
     if (state.activePane === 'html')      payload.html = $('htmlInput').value.trim();
@@ -543,17 +708,11 @@
       }
 
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
       const ext = payload.output === 'png' ? 'png' : payload.output === 'jpg' ? 'jpg' : 'pdf';
-      a.download = (payload.filename || 'dokument').replace(/\.\w+$/, '') + '.' + ext;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-
-      setStatus('Erstellt und heruntergeladen.', 'success');
+      const filename = (payload.filename || 'dokument').replace(/\.\w+$/, '') + '.' + ext;
+      const isImage = ext !== 'pdf';
+      showPreview(blob, filename, isImage);
+      setStatus('Erstellt — Vorschau geöffnet, zum Herunterladen unten klicken.', 'success');
     } catch (e) {
       setStatus(`Fehler: ${e.message}`, 'error');
     } finally {

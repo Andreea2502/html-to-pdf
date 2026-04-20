@@ -7,7 +7,7 @@ const CHROMIUM_PACK =
   'https://github.com/Sparticuz/chromium/releases/download/v147.0.1/chromium-v147.0.1-pack.x64.tar';
 
 export const config = {
-  api: { bodyParser: { sizeLimit: '10mb' } },
+  api: { bodyParser: { sizeLimit: '15mb' } },
   maxDuration: 60,
 };
 
@@ -118,6 +118,9 @@ async function prepareForPdf(page, opts) {
     darkMode,
     watermark,
     autoToc,
+    logo,
+    logoPosition,
+    logoWidth,
   } = opts;
 
   await page.evaluate(
@@ -298,6 +301,31 @@ async function prepareForPdf(page, opts) {
       }
 
       if (customCss) injectStyle(customCss);
+
+      // Logo — repeating brand mark on every page via position:fixed
+      if (args.logo) {
+        const pos = args.logoPosition || 'top-right';
+        const w = Math.max(10, Math.min(80, Number(args.logoWidth) || 30));
+        const placements = {
+          'top-right':    'top:8mm; right:10mm;',
+          'top-left':     'top:8mm; left:10mm;',
+          'top-center':   'top:8mm; left:50%; transform:translateX(-50%);',
+          'bottom-right': 'bottom:8mm; right:10mm;',
+          'bottom-left':  'bottom:8mm; left:10mm;',
+        };
+        const placement = placements[pos] || placements['top-right'];
+        const align = pos.includes('right') ? 'flex-end'
+                    : pos.includes('left')  ? 'flex-start'
+                    : 'center';
+        const div = document.createElement('div');
+        div.setAttribute('data-pdf-logo', '');
+        div.style.cssText = `position:fixed;${placement}width:${w}mm;height:18mm;z-index:99998;pointer-events:none;display:flex;align-items:center;justify-content:${align};`;
+        const img = document.createElement('img');
+        img.src = args.logo;
+        img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
+        div.appendChild(img);
+        document.body.appendChild(div);
+      }
     },
     {
       expandAll,
@@ -307,6 +335,9 @@ async function prepareForPdf(page, opts) {
       customCss,
       darkMode,
       watermark,
+      logo,
+      logoPosition,
+      logoWidth,
     }
   );
 
@@ -383,6 +414,15 @@ export default async function handler(req, res) {
     watermark = '',
     autoToc = false,
     password = '',
+    logo = '',
+    logoPosition = 'top-right',
+    logoWidth = 30,
+    addCover = false,
+    coverTitle = '',
+    coverSubtitle = '',
+    coverAuthor = '',
+    coverDate = '',
+    coverDescription = '',
   } = req.body ?? {};
 
   const safeScale = Math.min(1.3, Math.max(0.1, Number(scale) || 1));
@@ -491,7 +531,25 @@ export default async function handler(req, res) {
       darkMode,
       watermark,
       autoToc,
+      logo,
+      logoPosition,
+      logoWidth,
     });
+
+    // Prepend cover page (after preparation so it isn't affected by expand/dark-mode tweaks
+    // meant for the user's main content)
+    if (addCover && coverTitle && coverTitle.trim()) {
+      const coverHtml = renderCoverPage({
+        title: coverTitle.trim(),
+        subtitle: (coverSubtitle || '').trim(),
+        author: (coverAuthor || '').trim(),
+        date: (coverDate || '').trim(),
+        description: (coverDescription || '').trim(),
+      });
+      await page.evaluate((h) => {
+        document.body.insertAdjacentHTML('afterbegin', h);
+      }, coverHtml);
+    }
 
     // Apply zoom via CSS so layout reflows (more content per row)
     // instead of Puppeteer's scale which keeps layout fixed and adds margins.
@@ -548,6 +606,8 @@ export default async function handler(req, res) {
       printBackground: true,
       preferCSSPageSize: !useExplicitLayout,
       displayHeaderFooter: hasHeader || hasFooter,
+      outline: true,
+      tagged: true,
       headerTemplate,
       footerTemplate,
       margin: {
@@ -604,4 +664,28 @@ function escapeHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function renderCoverPage({ title, subtitle, author, date, description }) {
+  const esc = escapeHtml;
+  return `
+<section data-cover style="width:100%;min-height:100vh;padding:50mm 30mm 40mm;page-break-after:always;break-after:page;background:#FAF8F3;color:#11162A;font-family:'Inter',system-ui,sans-serif;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased">
+  <div style="position:absolute;top:0;left:0;right:0;height:6px;background:#E8552B"></div>
+  <div style="flex-shrink:0">
+    <div style="display:inline-flex;align-items:center;gap:10px;background:#F1ECDF;padding:5px 14px;border-radius:999px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#11162A;font-weight:600;margin-bottom:12mm">
+      <span style="width:8px;height:8px;background:#E8552B;border-radius:50%;display:inline-block"></span>
+      <span>Dokument</span>
+    </div>
+    ${author ? `<div style="font-size:11pt;letter-spacing:0.22em;text-transform:uppercase;color:#5A6070;font-weight:600">${esc(author)}</div>` : ''}
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:20mm 0">
+    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:72pt;line-height:1.02;letter-spacing:-0.015em;margin:0 0 10mm;font-weight:700;max-width:170mm">${esc(title)}</h1>
+    ${subtitle ? `<p style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:22pt;line-height:1.35;color:#5A6070;margin:0;max-width:150mm;font-weight:400">${esc(subtitle)}</p>` : ''}
+    ${description ? `<p style="font-family:'Inter',sans-serif;font-size:13pt;line-height:1.55;color:#242A40;margin:14mm 0 0;max-width:140mm">${esc(description)}</p>` : ''}
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:end;font-size:10pt;color:#5A6070;letter-spacing:0.2em;text-transform:uppercase;padding-top:10mm;border-top:1px solid #E7E1D4;flex-shrink:0">
+    <span>${esc(date || '')}</span>
+    <span style="color:#E8552B;font-family:'Fraunces',serif;font-size:16pt;letter-spacing:0">◆</span>
+  </div>
+</section>`;
 }
